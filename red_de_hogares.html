@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+<title>Red de hogares</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Public+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a workbench (controls | network) over a full-width results band, then the model notes in a reading column. */
+:root{
+  --bg:#F2F4F3; --surface:#FFFFFF; --ink:#16232A; --muted:#55636A; --line:#D5DCDA; --grid:#E6EBE9;
+  --accent:#1C7466; --accent-soft:#DCEDE9;
+  --s-ok:#00846A; --s-sav:#4A98DC; --s-net:#8E3FA6; --s-debt:#D39A12; --s-arr:#B32E1C;
+  --ref:#7A868B;
+  --display:"Spectral", Georgia, "Times New Roman", serif;
+  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111A1E; --surface:#18252A; --ink:#E6ECEA; --muted:#9AA9AE; --line:#2C3B41; --grid:#223036;
+  --accent:#4FB8A5; --accent-soft:#1B3833;
+  --s-ok:#199e70; --s-sav:#3987e5; --s-net:#d55181; --s-debt:#c98500; --s-arr:#d23a3a; --ref:#8C989D; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111A1E; --surface:#18252A; --ink:#E6ECEA; --muted:#9AA9AE; --line:#2C3B41; --grid:#223036;
+  --accent:#4FB8A5; --accent-soft:#1B3833;
+  --s-ok:#199e70; --s-sav:#3987e5; --s-net:#d55181; --s-debt:#c98500; --s-arr:#d23a3a; --ref:#8C989D; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;padding-inline:20px;padding-block:0 64px}
+a{color:var(--accent);text-underline-offset:3px}
+button,input,select{font:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.15;text-wrap:balance;margin:0}
+p{margin:0}
+.wide{max-width:1180px;margin-inline:auto}
+.col{max-width:700px;margin-inline:auto}
+.eyebrow{font-family:var(--mono);font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header.hero{padding-block:48px 8px;display:grid;gap:12px}
+header.hero h1{font-size:clamp(2rem,5vw,3.2rem)}
+.lede{font-size:1.08rem;color:var(--muted);max-width:66ch}
+.badge{display:inline-block;font-size:.84rem;border:1px dashed var(--line);border-radius:999px;padding:4px 12px;color:var(--muted);justify-self:start}
+.badge b{color:var(--ink);font-weight:600}
+
+.bench{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:18px;margin-top:28px;align-items:start}
+@media (max-width:900px){.bench{grid-template-columns:1fr}.controls{order:2}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.controls{display:grid;gap:18px}
+.ctl-group{display:grid;gap:10px}
+.ctl-title{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:.86rem;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.sw{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.9rem;cursor:pointer}
+.sw input{width:36px;height:20px;appearance:none;-webkit-appearance:none;background:var(--line);border-radius:999px;position:relative;cursor:pointer;flex:none;transition:background .2s}
+.sw input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--surface);transition:left .2s}
+.sw input:checked{background:var(--accent)}
+.sw input:checked::after{left:18px}
+.rng{display:grid;gap:4px;font-size:.9rem}
+.rng .top{display:flex;justify-content:space-between;gap:8px}
+.rng output{font-family:var(--mono);font-size:.84rem;color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.note{font-size:.8rem;color:var(--muted)}
+
+.stage{display:grid;gap:12px}
+.stagehead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.month{font-family:var(--display);font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums}
+.month small{font-family:var(--body);font-size:.85rem;color:var(--muted);font-weight:400;margin-left:6px}
+.play{display:flex;gap:8px;align-items:center}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:8px;padding:7px 14px;font-size:.88rem;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+#scrub{width:min(320px,100%)}
+canvas#net{width:100%;height:auto;display:block;border-radius:8px;background:var(--bg)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.82rem;color:var(--muted)}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.legend i{width:11px;height:11px;border-radius:50%;display:inline-block}
+.legend i.sq{border-radius:3px}
+.legend i.line{width:18px;height:2px;border-radius:1px}
+
+.results{margin-top:18px;display:grid;gap:18px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:4px}
+.kpi .v{font-family:var(--display);font-size:1.8rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi .l{font-size:.86rem;color:var(--muted)}
+.kpi .d{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.charts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media (max-width:900px){.charts{grid-template-columns:1fr}}
+.chart h3{font-size:1.08rem}
+.chart .sub{font-size:.86rem;color:var(--muted);margin:2px 0 10px}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart text{font-family:var(--body)}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.8rem;box-shadow:0 4px 14px rgb(0 0 0 / .12);min-width:150px;z-index:4}
+.tip b{display:block;margin-bottom:4px}
+.tip div{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.tip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.chartwrap{position:relative}
+.refbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:.86rem;color:var(--muted)}
+
+.experiments{margin-top:56px}
+.exps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:18px}
+.exp{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px;align-content:start}
+.exp h3{font-size:1.1rem}
+.exp p{font-size:.92rem}
+.exp .reads{font-size:.8rem;color:var(--muted)}
+.exp button{justify-self:start}
+.finding{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 14px;border-radius:0 8px 8px 0;font-size:.95rem;margin-top:16px}
+
+.notes{margin-top:64px;display:grid;gap:16px}
+.notes h2{font-size:clamp(1.6rem,3.5vw,2.1rem)}
+.notes h3{font-size:1.15rem;margin-top:10px}
+.notes p,.notes li{font-size:.98rem}
+.notes ol,.notes ul{margin:0;padding-left:20px;display:grid;gap:6px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.88rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td.n{font-variant-numeric:tabular-nums;text-align:right}
+th.n{text-align:right}
+tr:last-child td{border-bottom:none}
+footer{margin-top:56px;border-top:1px solid var(--line);padding-top:16px;font-size:.84rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<style id="tema-libreta">
+/* Tema 'La libreta del hogar': fondo blanco, Archivo expandida para títulos, Public Sans para texto, DM Mono para cifras.
+   Color vivo solo donde se mueve el dinero: verde ingreso, azul colchón, naranja golpe, magenta deuda; amarillo solo como destacador. */
+:root{--bg:#FFFFFF; --surface:#F5F7F6; --ink:#172026; --muted:#5E6A71; --line:#E1E6E9; --grid:#ECEFF1; --mark:rgba(255,210,63,1); --text-shock:#C2410C; --text-ok:#0B7A3B;--accent:#1A4FD6; --accent-soft:#E8EFFF; --s-ok:#12A150; --s-sav:#2F6BFF; --s-net:#7FA4FF; --s-debt:#C81D6B; --s-arr:#FF5A1F; --ref:#8A959B; --tip:#1A4FD6;--display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"DM Mono",ui-monospace,Menlo,Consolas,monospace;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#101418; --surface:#182026; --ink:#E8ECEE; --muted:#9AA6AD; --line:#2A343B; --grid:#222B31; --mark:rgba(255,210,63,.38); --text-shock:#FF8A5B; --text-ok:#4FD68C;--accent:#7FA4FF; --accent-soft:#18264A; --s-ok:#2BC46B; --s-sav:#6E97FF; --s-net:#A9C1FF; --s-debt:#F0559A; --s-arr:#FF7A45; --ref:#8C989D; --tip:#7FA4FF; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101418; --surface:#182026; --ink:#E8ECEE; --muted:#9AA6AD; --line:#2A343B; --grid:#222B31; --mark:rgba(255,210,63,.38); --text-shock:#FF8A5B; --text-ok:#4FD68C;--accent:#7FA4FF; --accent-soft:#18264A; --s-ok:#2BC46B; --s-sav:#6E97FF; --s-net:#A9C1FF; --s-debt:#F0559A; --s-arr:#FF7A45; --ref:#8C989D; --tip:#7FA4FF; color-scheme:dark}
+
+*{font-synthesis-weight:none}
+body{background:var(--bg);color:var(--ink)}
+h1,h2,h3{font-family:var(--display);font-stretch:112%;font-weight:800;letter-spacing:-.005em}
+h1{font-stretch:125%;font-weight:850;letter-spacing:-.015em;line-height:1.02}
+h2{font-stretch:118%;line-height:1.05}
+.eyebrow{font-family:var(--mono);letter-spacing:.06em}
+mark,.hl{background:linear-gradient(transparent 58%,var(--mark) 58%);color:inherit;padding:0 .05em}
+.badge{border-style:solid;background:var(--surface);border-color:transparent}
+.ico{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;background:currentColor;-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat}
+.brandmark{display:inline-flex;align-items:center;gap:8px}
+.brandmark::before{content:"";width:22px;height:22px;background:var(--ink);-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3%2011l9-7%209%207%22/%3E%3Cpath%20d%3D%22M5.5%209.5V20h13V9.5%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2214.5%22%20r%3D%223%22/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3%2011l9-7%209%207%22/%3E%3Cpath%20d%3D%22M5.5%209.5V20h13V9.5%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2214.5%22%20r%3D%223%22/%3E%3C/svg%3E") center/contain no-repeat;flex:none}
+
+/* Composición: portada centrada; experimentos con título a la derecha; supuestos en columna de lectura. */
+header.hero{text-align:center;justify-items:center;padding-block:64px 12px}
+header.hero h1{font-size:clamp(2.1rem,5.2vw,3.5rem);max-width:22ch}
+header.hero .lede{margin-inline:auto}
+.card{border-color:transparent;background:var(--surface);border-radius:16px}
+.experiments > .eyebrow,.experiments > h2{display:block;text-align:right}
+.notes > .eyebrow,.notes > h2{display:block}
+</style>
+</head>
+<body>
+
+<div class="wide">
+<header class="hero">
+  <span class="eyebrow"><a href="index.html" style="color:inherit">Economic Security Lab</a> · Simulador</span>
+  <h1>¿Qué les pasa a 200 hogares durante tres años de golpes, deudas y ayuda entre vecinos?</h1>
+  <p class="lede">Un modelo basado en agentes: cada punto es un hogar que gana, gasta, ahorra, se endeuda y pide ayuda a sus contactos mes a mes. Cambia los apoyos y la red, y mira cómo se encadenan las partes del problema.</p>
+  <span class="badge"><b>Montos ilustrativos.</b> &nbsp;Escenarios en pesos calibrados con referencias públicas de 2026 para entender mecanismos. No son predicciones sobre Chile.</span>
+</header>
+
+<div class="bench">
+  <aside class="card controls" aria-label="Parámetros">
+    <div class="ctl-group">
+      <span class="ctl-title">El golpe</span>
+      <div class="seg" role="group" aria-label="Tipo de golpe" id="scen">
+        <button type="button" data-v="indiv" aria-pressed="false">Golpes individuales</button>
+        <button type="button" data-v="rec" aria-pressed="true">Recesión</button>
+      </div>
+      <p class="note" id="scen-note"></p>
+    </div>
+    <div class="ctl-group">
+      <span class="ctl-title">La red</span>
+      <label class="rng" for="k"><span class="top">Contactos por hogar <output id="k-out" for="k"></output></span><input type="range" id="k" min="0" max="8" step="1" value="4"></label>
+      <label class="sw" for="netmoney">Los contactos prestan dinero <input type="checkbox" id="netmoney" checked></label>
+      <label class="sw" for="netjobs">Los contactos ayudan a encontrar trabajo <input type="checkbox" id="netjobs" checked></label>
+      <label class="sw" for="seg">Barrios segregados por tipo de hogar <input type="checkbox" id="seg" checked></label>
+    </div>
+    <div class="ctl-group">
+      <span class="ctl-title">Apoyos públicos</span>
+      <label class="sw" for="ui">Seguro de cesantía para asalariados <input type="checkbox" id="ui" checked></label>
+      <label class="rng" for="tr"><span class="top">Transferencia de emergencia <output id="tr-out" for="tr"></output></span><input type="range" id="tr" min="0" max="400" step="50" value="0"></label>
+      <label class="rng" for="delay"><span class="top">Llega con retraso de <output id="delay-out" for="delay"></output></span><input type="range" id="delay" min="0" max="6" step="1" value="3"></label>
+      <label class="sw" for="relief">Postergar cuotas de deuda 3 meses <input type="checkbox" id="relief"></label>
+    </div>
+    <div class="ctl-group">
+      <span class="ctl-title">Comparar</span>
+      <div class="seg">
+        <button type="button" id="setref" class="btn ghost" style="border-radius:8px">Fijar como referencia</button>
+        <button type="button" id="clearref" class="btn ghost" style="border-radius:8px" hidden>Quitar referencia</button>
+      </div>
+      <p class="note" id="ref-note">Fija el escenario actual, cambia algo y compara.</p>
+    </div>
+  </aside>
+
+  <div class="card stage">
+    <div class="stagehead">
+      <div class="month" id="month">Mes 0 <small id="month-note"></small></div>
+      <div class="play">
+        <button type="button" class="btn" id="playbtn">Reproducir</button>
+        <input type="range" id="scrub" min="0" max="36" value="36" aria-label="Mes mostrado">
+        <button type="button" class="btn ghost" id="reseed" title="Otra corrida con distinto azar">Otra corrida</button>
+      </div>
+    </div>
+    <canvas id="net" width="1440" height="820" role="img" aria-label="Red de 200 hogares; cada punto se colorea según su situación en el mes mostrado"></canvas>
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--s-ok)"></i>Estable</span>
+      <span><i style="background:var(--s-sav)"></i>Usa su ahorro</span>
+      <span><i style="background:var(--s-net)"></i>Apoyo de su red</span>
+      <span><i style="background:var(--s-debt)"></i>Se endeuda</span>
+      <span><i style="background:var(--s-arr)"></i>En atraso</span>
+      <span><i class="line" style="background:var(--s-net)"></i>Préstamo entre contactos este mes</span>
+    </div>
+  </div>
+</div>
+
+<section class="results" aria-label="Resultados">
+  <div class="kpis" id="kpis"></div>
+  <div class="charts">
+    <div class="card chart">
+      <h3>Situación de los hogares mes a mes</h3>
+      <p class="sub">Porcentaje de hogares en cada situación, corrida mostrada.</p>
+      <div class="chartwrap" id="areawrap"></div>
+      <div class="legend" style="margin-top:8px" aria-hidden="true">
+        <span><i class="sq" style="background:var(--s-ok)"></i>Estable</span>
+        <span><i class="sq" style="background:var(--s-sav)"></i>Usa su ahorro</span>
+        <span><i class="sq" style="background:var(--s-net)"></i>Apoyo de su red</span>
+        <span><i class="sq" style="background:var(--s-debt)"></i>Se endeuda</span>
+        <span><i class="sq" style="background:var(--s-arr)"></i>En atraso</span>
+      </div>
+    </div>
+    <div class="card chart">
+      <h3>Hogares en atraso</h3>
+      <p class="sub">Promedio de 30 corridas; la banda va del 10% al 90% de las corridas.</p>
+      <div class="chartwrap" id="linewrap"></div>
+      <div class="legend" style="margin-top:8px" aria-hidden="true">
+        <span><i class="line" style="background:var(--s-arr)"></i>Escenario actual</span>
+        <span id="leg-ref" hidden><i class="line" style="background:var(--ref)"></i>Referencia</span>
+      </div>
+    </div>
+  </div>
+  <div class="card chart">
+    <h3>¿Quiénes pasaron por un atraso?</h3>
+    <p class="sub">Porcentaje de hogares de cada tipo que estuvo al menos un mes en atraso, promedio de 30 corridas.</p>
+    <div class="chartwrap" id="barwrap"></div>
+  </div>
+</section>
+
+<section class="experiments">
+  <span class="eyebrow">Experimentos guiados</span>
+  <h2 style="font-size:clamp(1.6rem,3.5vw,2.1rem);margin-top:6px">Cuatro preguntas para hacerle al modelo</h2>
+  <p class="lede" style="margin-top:8px">Cada experimento fija un escenario de referencia, cambia una sola cosa y te muestra la diferencia.</p>
+  <div class="exps" id="exps"></div>
+  <div class="finding" id="finding" hidden></div>
+</section>
+
+<section class="notes col">
+  <span class="eyebrow">Cómo funciona el modelo</span>
+  <h2>Supuestos a la vista</h2>
+  <p>Este simulador es la versión de divulgación de un modelo que el Lab podría calibrar con datos chilenos. Sigue la lógica del protocolo ODD (propósito, entidades, procesos), resumida aquí.</p>
+
+  <h3>Propósito</h3>
+  <p>Mostrar cómo se encadenan golpes, colchones, deuda y redes en el tiempo, y por qué el mismo apoyo produce efectos distintos según su momento y según quién lo recibe.</p>
+
+  <h3>Entidades</h3>
+  <p>200 hogares de cinco tipos, unidos por una red de contactos. Cada hogar tiene ingreso habitual, tipo de empleo, ahorro líquido, gastos fijos, cuotas de deuda, deuda informal con sus contactos y atrasos acumulados.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Tipo de hogar</th><th class="n">Hogares</th><th class="n">Ingreso habitual</th><th class="n">Ahorro</th><th class="n">Cuotas</th><th class="n">Gastos fijos</th><th>Empleo</th></tr></thead>
+    <tbody id="typetable"></tbody>
+  </table></div>
+  <p class="note">Montos en miles de pesos chilenos al mes, ilustrativos y calibrados con referencias públicas (sueldo mínimo, INE, CMF). Ahorro en meses de ingreso; cuotas y gastos fijos como proporción del ingreso. Cada hogar varía alrededor de estos valores.</p>
+
+  <h3>Qué pasa cada mes</h3>
+  <ol>
+    <li><b>Empleo.</b> Quien trabaja puede perder el empleo: 3,5% al mes si es informal y 1,2% si tiene contrato. En una recesión (meses 6 a 12) ese riesgo se multiplica por cuatro y el ingreso informal cae 25%. En el escenario de golpes individuales el riesgo es 60% mayor durante todo el período, de modo que el número esperado de despidos es parecido.</li>
+    <li><b>Recuperación.</b> Quien está sin trabajo encuentra uno con cierta probabilidad mensual, que sube si tiene contactos con empleo y la red ayuda a encontrar trabajo. En recesión cuesta el doble.</li>
+    <li><b>Ingreso.</b> Asalariados sin empleo reciben 50% de su ingreso por 5 meses si hay seguro de cesantía. El resto sobrevive con trabajos ocasionales (10% a 15%). La transferencia de emergencia se paga a quien perdió el empleo y sigue sin trabajo, desde el mes que indica el retraso y por un máximo de tres meses.</li>
+    <li><b>Salud.</b> Un golpe de salud cuesta casi un mes de ingreso; es más probable en hogares de pensionados.</li>
+    <li><b>Cuentas.</b> Si el ingreso cubre gastos fijos y cuotas, el hogar ahorra parte del excedente y paga lo que debe a sus contactos.</li>
+    <li><b>Si no alcanza</b>, el hogar recurre en orden a: su ahorro, préstamos de contactos que tengan un mes de reserva, crédito formal o de casas comerciales (12 cuotas al 29,6% anual, la tasa de interés corriente, si no está en atraso) y, si nada alcanza, queda en atraso.</li>
+  </ol>
+
+  <h3>Qué no incluye todavía</h3>
+  <ul>
+    <li>Preocupación, salud mental y decisiones de largo plazo, como dejar de estudiar.</li>
+    <li>Cambios en el tamaño del hogar, mudanzas o venta de bienes.</li>
+    <li>Precios y reglas precisas del seguro de cesantía chileno.</li>
+  </ul>
+
+  <h3>Hacia la versión de investigación</h3>
+  <ol>
+    <li>Construir tipos de hogar con CASEN (ingreso, informalidad, composición, transferencias) y EFH (activos, deudas, carga financiera), unidos por variables comunes.</li>
+    <li>Calibrar entradas y salidas del empleo con la Encuesta Nacional de Empleo o datos del Seguro de Cesantía.</li>
+    <li>Tratar la red como escenarios con análisis de sensibilidad, apoyándose en ELSOC donde sea posible.</li>
+    <li>Validar contra hechos conocidos, como la proporción de hogares con varias vulnerabilidades en Prieto (2022) o la carga financiera de la EFH.</li>
+  </ol>
+  <footer>Economic Security Lab · Prototipo de simulación, octubre de 2026. Todos los parámetros son ilustrativos.</footer>
+</section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var MONTHS = 36, N = 200, REPS = 30, REC0 = 6, REC1 = 12;
+  var TYPES = [
+    {id:"A", name:"Informal con deuda de consumo", short:"Informal endeudado", share:.25, inc:650, formal:.15, sav:.3, debt:.20, fixed:.64, pens:false},
+    {id:"B", name:"Asalariado endeudado", short:"Asalariado endeudado", share:.25, inc:1000, formal:.85, sav:.6, debt:.22, fixed:.56, pens:false},
+    {id:"C", name:"Clase media con hipoteca", short:"Clase media", share:.20, inc:1800, formal:.9, sav:1.5, debt:.20, fixed:.52, pens:false},
+    {id:"D", name:"Hogar con respaldo", short:"Con respaldo", share:.12, inc:3500, formal:.9, sav:6, debt:.10, fixed:.50, pens:false},
+    {id:"E", name:"Pensionados", short:"Pensionados", share:.18, inc:520, formal:0, sav:.6, debt:.06, fixed:.74, pens:true}
+  ];
+  var STATES = ["ok","sav","net","debt","arr"];
+  var SLABEL = {ok:"Estable",sav:"Usa su ahorro",net:"Apoyo de su red",debt:"Se endeuda",arr:"En atraso"};
+  var SVAR = {ok:"--s-ok",sav:"--s-sav",net:"--s-net",debt:"--s-debt",arr:"--s-arr"};
+
+  var P = {scen:"rec", k:4, netmoney:true, netjobs:true, seg:true, ui:true, tr:0, delay:3, relief:false};
+  var seed = 7;
+
+  function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+  // ---------- population + network ----------
+  function build(p, s){
+    var r = rng(s*7919+13), H = [], i = 0;
+    var centers = [[.2,.3],[.5,.25],[.8,.32],[.75,.75],[.28,.74]];
+    TYPES.forEach(function(T,ti){
+      var n = Math.round(T.share*N); if (ti===TYPES.length-1) n = N - H.length;
+      for (var j=0;j<n;j++){
+        var f = Math.exp((r()-.5)*.4);
+        var x, y;
+        if (p.seg){ var a=r()*Math.PI*2, d=Math.sqrt(r())*.16; x=centers[ti][0]+Math.cos(a)*d*1.3; y=centers[ti][1]+Math.sin(a)*d }
+        else { x=.06+r()*.88; y=.08+r()*.84 }
+        H.push({i:i++, t:ti, T:T, inc:T.inc*f, formal:!T.pens && r()<T.formal, pens:T.pens,
+          sav0:T.sav*T.inc*f*Math.exp((r()-.5)*.8), x:x, y:y, nb:[]});
+      }
+    });
+    // k nearest neighbours + a few long ties
+    H.forEach(function(h){
+      if (p.k<=0) return;
+      var d = H.map(function(o){return {o:o, d:o===h?1e9:(o.x-h.x)*(o.x-h.x)+(o.y-h.y)*(o.y-h.y)}}).sort(function(a,b){return a.d-b.d});
+      for (var q=0;q<p.k;q++){ link(h,d[q].o) }
+      if (r()<.12){ link(h,H[Math.floor(r()*N)]) }
+    });
+    function link(a,b){ if(a===b||a.nb.indexOf(b)>=0) return; a.nb.push(b); b.nb.push(a) }
+    return H;
+  }
+
+  // ---------- one run ----------
+  function run(p, s, keepSnaps){
+    var H = build(p, s), r = rng(s*104729+1);
+    H.forEach(function(h){h.emp=true; h.unemp=0; h.lossAt=-99; h.savings=h.sav0; h.owed=[]; h.loans=[]; h.arrDebt=0; h.arrMonths=0; h.everArr=false; h.newDebt=0; h.relief=0; h.postponed=0; h.state="ok"});
+    var series = [], snaps = [], helpTotal = 0, defTotal = 0;
+    for (var m=0;m<=MONTHS;m++){
+      var rec = p.scen==="rec" && m>=REC0 && m<REC1;
+      var edges = [];
+      if (m>0){
+        // employment
+        H.forEach(function(h){
+          if (h.pens) return;
+          if (h.emp){
+            var pl = (h.formal?.012:.035)*(rec?4:1);
+            if (p.scen==="indiv") pl *= 1.6;
+            if (r()<pl){h.emp=false; h.unemp=0; h.lossAt=m; h.relief=3}
+          } else {
+            h.unemp++;
+            var pf = (h.formal?.10:.16)*(rec?.5:1);
+            if (p.netjobs && h.nb.length){
+              var e = h.nb.filter(function(o){return o.emp && !o.pens}).length / h.nb.length;
+              pf += .14*e;
+            }
+            if (r()<pf){h.emp=true}
+          }
+        });
+        H.forEach(function(h){
+          var base = h.inc, income;
+          if (h.pens) income = base;
+          else if (h.emp) income = h.formal ? base : base*(rec?.75:1)*(1+(r()-.5)*.3);
+          else income = (h.formal && p.ui && h.unemp<5) ? base*.5 : base*(h.formal?.10:.15);
+          var lost = !h.emp;
+          if (p.tr>0 && lost && h.lossAt>0){
+            var since = m - h.lossAt;
+            if (since>=p.delay && since<p.delay+3) income += p.tr;
+          }
+          var health = r() < (h.pens?.02:.008) ? base*.8 + 150 : 0;
+          var basePay = h.T.debt*base;
+          if (p.relief && lost && h.relief>0){ h.postponed += basePay; basePay = 0; h.relief-- }
+          else if (h.postponed>0){ var pp=Math.min(h.postponed, h.T.debt*base*0.25); basePay += pp; h.postponed -= pp }
+          var loanPay = 0;
+          h.loans = h.loans.filter(function(L){ loanPay += L.pay; L.left--; return L.left>0 });
+          var arrPay = h.arrDebt>0 ? Math.min(h.arrDebt, h.arrDebt/6 + 1) : 0;
+          var need = h.T.fixed*base + basePay + loanPay + health + arrPay;
+          var flex = .08*base;
+          var gap = need - income;
+          var st = "ok";
+          if (gap <= 0){
+            h.arrDebt -= arrPay;
+            var surplus = -gap - flex; if (surplus<0) surplus = 0;
+            var toOwed = Math.min(surplus*.3, h.owed.reduce(function(a,o){return a+o.amt},0));
+            var left = toOwed;
+            h.owed.forEach(function(o){ var x=Math.min(o.amt,left); o.amt-=x; o.to.savings+=x; left-=x });
+            h.owed = h.owed.filter(function(o){return o.amt>0.5});
+            h.savings += (surplus - toOwed)*.45;
+          } else {
+            h.arrDebt -= arrPay;
+            var d = gap; defTotal += gap;
+            var u = Math.min(d, h.savings); h.savings -= u; d -= u; if (u>0) st = "sav";
+            if (d>0 && p.netmoney && h.nb.length){
+              var order = h.nb.slice().sort(function(){return r()-.5}).slice(0,3);
+              for (var q=0;q<order.length && d>0;q++){
+                var o = order[q], reserve = o.T.fixed*o.inc;
+                var can = Math.min(o.savings - reserve, .5*o.inc);
+                if (can>5){ var g=Math.min(d,can); o.savings-=g; d-=g; h.owed.push({to:o,amt:g}); edges.push([o.i,h.i]); helpTotal+=g; st="net" }
+              }
+            }
+            if (d>0 && h.arrMonths===0){
+              var cap = 3*h.inc - h.newDebt;
+              if (cap>0){ var b=Math.min(d,cap); h.loans.push({pay:b*(Math.pow(1.2961,1/12)-1)/(1-Math.pow(Math.pow(1.2961,1/12),-12)),left:12}); h.newDebt+=b; d-=b; st="debt" }
+            }
+            if (d>0){ h.arrDebt += d; st = "arr" }
+          }
+          if (h.arrDebt>1){ if (st!=="arr") st = st==="ok"?"arr":st; }
+          if (st==="arr"){ h.arrMonths++; h.everArr=true } else if (h.arrDebt<=1){ h.arrMonths=0 }
+          h.state = st;
+        });
+      }
+      var c = {ok:0,sav:0,net:0,debt:0,arr:0};
+      H.forEach(function(h){c[h.state]++});
+      series.push(c);
+      if (keepSnaps) snaps.push({st:H.map(function(h){return h.state}), e:edges});
+    }
+    var byType = TYPES.map(function(T,ti){
+      var g = H.filter(function(h){return h.t===ti});
+      return g.filter(function(h){return h.everArr}).length/g.length;
+    });
+    var ever = H.filter(function(h){return h.everArr}).length/N;
+    var arrMonthsTotal = 0, affected = 0;
+    // months in arrears per affected household from series not tracked per hh; approximate via series
+    var arrSum = series.reduce(function(a,c){return a+c.arr},0);
+    affected = H.filter(function(h){return h.everArr}).length;
+    return {H:H, series:series, snaps:snaps, byType:byType, ever:ever,
+      avgArrMonths: affected? arrSum/affected : 0,
+      newDebt: H.reduce(function(a,h){return a+h.newDebt},0)/N,
+      help: helpTotal, netShare: defTotal? helpTotal/defTotal : 0};
+  }
+
+  function aggregate(p){
+    var arr = [], ever=[], months=[], debt=[], help=[], ns=[], byT = TYPES.map(function(){return []});
+    for (var s=1;s<=REPS;s++){
+      var R = run(p, s*31+5, false);
+      arr.push(R.series.map(function(c){return c.arr/N}));
+      ever.push(R.ever); months.push(R.avgArrMonths); debt.push(R.newDebt); help.push(R.help); ns.push(R.netShare);
+      R.byType.forEach(function(v,i){byT[i].push(v)});
+    }
+    function mean(a){return a.reduce(function(x,y){return x+y},0)/a.length}
+    function q(a,p){var b=a.slice().sort(function(x,y){return x-y});return b[Math.min(b.length-1,Math.floor(p*(b.length-1)+.5))]}
+    var line = [], lo=[], hi=[];
+    for (var m=0;m<=MONTHS;m++){ var col = arr.map(function(a){return a[m]}); line.push(mean(col)); lo.push(q(col,.1)); hi.push(q(col,.9)) }
+    return {line:line, lo:lo, hi:hi, ever:mean(ever), months:mean(months), debt:mean(debt), help:mean(help), netShare:mean(ns), byType:byT.map(mean)};
+  }
+
+  // ---------- state & rendering ----------
+  var cur = null, agg = null, ref = null, refAgg = null, shown = MONTHS, timer = null;
+  var $ = function(id){return document.getElementById(id)};
+  var css = function(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()};
+
+  function recompute(){
+    cur = run(P, seed, true);
+    agg = aggregate(P);
+    renderAll();
+  }
+  function renderAll(){ renderNet(); renderKpis(); renderArea(); renderLine(); renderBars(); renderMonth() }
+
+  function renderMonth(){
+    $("month").firstChild.nodeValue = "Mes " + shown + " ";
+    var rec = P.scen==="rec" && shown>=REC0 && shown<REC1;
+    $("month-note").textContent = rec ? "recesión en curso" : (P.scen==="rec" && shown>=REC1 ? "después de la recesión" : "");
+    $("scrub").value = shown;
+  }
+
+  function renderNet(){
+    var cv = $("net"), ctx = cv.getContext("2d"), W = cv.width, Hh = cv.height;
+    ctx.clearRect(0,0,W,Hh);
+    var snap = cur.snaps[shown], H = cur.H;
+    var px = function(h){return [h.x*W, h.y*Hh]};
+    ctx.lineWidth = 1.2; ctx.strokeStyle = css("--line");
+    ctx.beginPath();
+    H.forEach(function(h){ h.nb.forEach(function(o){ if (o.i>h.i){ var a=px(h), b=px(o); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]) } }) });
+    ctx.stroke();
+    ctx.strokeStyle = css("--s-net"); ctx.lineWidth = 4;
+    snap.e.forEach(function(e){ var a=px(H[e[0]]), b=px(H[e[1]]); ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke() });
+    var bg = css("--bg");
+    H.forEach(function(h,i){
+      var p = px(h), rad = 6 + Math.sqrt(h.inc)/5;
+      ctx.beginPath(); ctx.arc(p[0],p[1],rad+2.5,0,Math.PI*2); ctx.fillStyle = bg; ctx.fill();
+      ctx.beginPath(); ctx.arc(p[0],p[1],rad,0,Math.PI*2); ctx.fillStyle = css(SVAR[snap.st[i]]); ctx.fill();
+    });
+    if (P.seg){
+      var centers = [[.2,.3],[.5,.25],[.8,.32],[.75,.75],[.28,.74]];
+      ctx.font = "600 26px " + css("--body"); ctx.fillStyle = css("--muted"); ctx.textAlign = "center";
+      TYPES.forEach(function(T,ti){ var c=centers[ti]; ctx.fillText(T.short, c[0]*W, (c[1]-.2)*Hh < 30 ? 30 : (c[1]-.2)*Hh) });
+    }
+  }
+
+  function fmtPct(x){return Math.round(x*100)+"%"}
+  function renderKpis(){
+    var k = [
+      {v:fmtPct(agg.ever), l:"de los hogares pasó por al menos un mes en atraso", r: refAgg? delta(agg.ever,refAgg.ever,true):null},
+      {v:agg.months.toFixed(1).replace(".",","), l:"meses en atraso en promedio, entre los afectados", r: refAgg? delta(agg.months,refAgg.months,false,"meses"):null},
+      {v:"$"+Math.round(agg.debt).toLocaleString("es-CL")+" mil", l:"de crédito nuevo por hogar, en promedio", r: refAgg? delta(agg.debt,refAgg.debt,false,"mil"):null},
+      {v:"$"+(agg.help/1000).toFixed(1).replace(".",",")+" millones", l:"prestados entre contactos en tres años", r: refAgg? delta(agg.help/1000,refAgg.help/1000,false,"millones"):null}
+    ];
+    $("kpis").innerHTML = k.map(function(x){return '<div class="kpi"><span class="v">'+x.v+'</span><span class="l">'+x.l+'</span>'+(x.r?'<span class="d">'+x.r+'</span>':'')+'</div>'}).join("");
+  }
+  function delta(a,b,pct,unit){
+    var d = a-b; var s = d>0?"+":(d<0?"−":"±");
+    var pts = Math.abs(Math.round(d*100)); var v = pct ? pts+(pts===1?" punto":" puntos") : Math.abs(d).toFixed(1).replace(".",",")+" "+unit;
+    return s+v+" frente a la referencia";
+  }
+
+  // area chart
+  var CW = 540, CH = 300, M = {l:42,r:14,t:10,b:28};
+  function xs(m){return M.l + m/MONTHS*(CW-M.l-M.r)}
+  function ys(v){return M.t + (1-v)*(CH-M.t-M.b)}
+  function axes(svg, yMax){
+    var g = "";
+    var steps = yMax===1 ? [0,.25,.5,.75,1] : niceSteps(yMax);
+    steps.forEach(function(v){ var y = M.t+(1-v/yMax)*(CH-M.t-M.b); g += '<line x1="'+M.l+'" x2="'+(CW-M.r)+'" y1="'+y+'" y2="'+y+'" style="stroke:var(--grid)"/><text x="'+(M.l-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" style="fill:var(--muted)">'+Math.round(v*100)+'%</text>' });
+    [0,6,12,18,24,30,36].forEach(function(m){ g += '<text x="'+xs(m)+'" y="'+(CH-8)+'" text-anchor="middle" font-size="11" style="fill:var(--muted)">'+m+'</text>' });
+    g += '<text x="'+(CW-M.r)+'" y="'+(CH-8)+'" text-anchor="end" font-size="11" style="fill:var(--muted)" dy="0" dx="0"></text>';
+    if (P.scen==="rec") g = '<rect x="'+xs(REC0)+'" y="'+M.t+'" width="'+(xs(REC1)-xs(REC0))+'" height="'+(CH-M.t-M.b)+'" style="fill:var(--grid);opacity:.7"/><text x="'+((xs(REC0)+xs(REC1))/2)+'" y="'+(M.t+14)+'" text-anchor="middle" font-size="11" style="fill:var(--muted)">recesión</text>' + g;
+    return g;
+  }
+  function niceSteps(max){ var st=[0]; var step = max<=.1?.025:(max<=.2?.05:.1); for(var v=step; v<=max+1e-9; v+=step) st.push(+v.toFixed(3)); return st }
+
+  function renderArea(){
+    var S = cur.series, g = axes(null,1);
+    var cum = S.map(function(){return 0});
+    STATES.forEach(function(k){
+      var top = S.map(function(c,m){return cum[m] + c[k]/N});
+      var d = "M"+S.map(function(c,m){return xs(m)+" "+ys(top[m])}).join(" L");
+      for (var m=MONTHS;m>=0;m--) d += " L"+xs(m)+" "+ys(cum[m]);
+      g += '<path d="'+d+' Z" style="fill:var('+SVAR[k]+');stroke:var(--surface);stroke-width:1.5"/>';
+      cum = top;
+    });
+    g += '<line id="amark" x1="'+xs(shown)+'" x2="'+xs(shown)+'" y1="'+M.t+'" y2="'+(CH-M.b)+'" style="stroke:var(--ink);stroke-width:1.5"/>';
+    g += '<text x="'+(CW-M.r)+'" y="'+(CH+6)+'" text-anchor="end" font-size="11" style="fill:var(--muted)">mes</text>';
+    $("areawrap").innerHTML = '<svg viewBox="0 0 '+CW+' '+(CH+8)+'" role="img" aria-label="Área apilada con el porcentaje de hogares en cada situación por mes">'+g+'<rect class="hit" x="'+M.l+'" y="'+M.t+'" width="'+(CW-M.l-M.r)+'" height="'+(CH-M.t-M.b)+'" fill="transparent"/></svg><div class="tip" hidden></div>';
+    hover($("areawrap"), function(m){
+      var c = S[m];
+      return "<b>Mes "+m+"</b>"+STATES.slice().reverse().map(function(k){return '<div><span><i style="background:var('+SVAR[k]+')"></i>'+SLABEL[k]+'</span><span>'+fmtPct(c[k]/N)+'</span></div>'}).join("");
+    }, function(m){ shown = m; renderNet(); renderMonth(); moveMarks() });
+  }
+
+  function renderLine(){
+    var yMax = Math.max(.1, Math.ceil(Math.max.apply(null, agg.hi.concat(refAgg?refAgg.hi:[]))*20)/20);
+    var Y = function(v){return M.t+(1-v/yMax)*(CH-M.t-M.b)};
+    var g = axes(null,yMax);
+    var band = "M"+agg.hi.map(function(v,m){return xs(m)+" "+Y(v)}).join(" L");
+    for (var m=MONTHS;m>=0;m--) band += " L"+xs(m)+" "+Y(agg.lo[m]);
+    g += '<path d="'+band+' Z" style="fill:var(--s-arr);opacity:.16"/>';
+    if (refAgg) g += '<path d="M'+refAgg.line.map(function(v,m){return xs(m)+" "+Y(v)}).join(" L")+'" style="fill:none;stroke:var(--ref);stroke-width:2;stroke-dasharray:6 4"/>';
+    g += '<path d="M'+agg.line.map(function(v,m){return xs(m)+" "+Y(v)}).join(" L")+'" style="fill:none;stroke:var(--s-arr);stroke-width:2.2;stroke-linejoin:round"/>';
+    var pk = agg.line.indexOf(Math.max.apply(null,agg.line));
+    var nearR = xs(pk) > CW-110;
+    g += '<circle cx="'+xs(pk)+'" cy="'+Y(agg.line[pk])+'" r="4.5" style="fill:var(--s-arr);stroke:var(--surface);stroke-width:2"/><text x="'+(nearR? xs(pk)-8 : xs(pk)+8)+'" y="'+(Y(agg.line[pk])+ (nearR? 18 : -8))+'" text-anchor="'+(nearR?'end':'start')+'" font-size="12" font-weight="600" style="fill:var(--ink)">máximo '+fmtPct(agg.line[pk])+'</text>';
+    g += '<line id="lmark" x1="'+xs(shown)+'" x2="'+xs(shown)+'" y1="'+M.t+'" y2="'+(CH-M.b)+'" style="stroke:var(--ink);stroke-width:1;opacity:.5"/>';
+    $("linewrap").innerHTML = '<svg viewBox="0 0 '+CW+' '+(CH+8)+'" role="img" aria-label="Porcentaje de hogares en atraso por mes, promedio de 30 corridas">'+g+'<rect x="'+M.l+'" y="'+M.t+'" width="'+(CW-M.l-M.r)+'" height="'+(CH-M.t-M.b)+'" fill="transparent"/></svg><div class="tip" hidden></div>';
+    $("leg-ref").hidden = !refAgg;
+    hover($("linewrap"), function(m){
+      var h = "<b>Mes "+m+"</b><div><span><i style=\"background:var(--s-arr)\"></i>Actual</span><span>"+fmtPct(agg.line[m])+"</span></div><div><span>Rango 10–90%</span><span>"+fmtPct(agg.lo[m])+"–"+fmtPct(agg.hi[m])+"</span></div>";
+      if (refAgg) h += "<div><span><i style=\"background:var(--ref)\"></i>Referencia</span><span>"+fmtPct(refAgg.line[m])+"</span></div>";
+      return h;
+    }, null);
+  }
+
+  function renderBars(){
+    var W = 900, rowH = 36, top = 6, left = 250, right = 70, H = top + TYPES.length*rowH + 24;
+    var max = Math.max(.2, Math.max.apply(null, agg.byType.concat(refAgg?refAgg.byType:[])));
+    max = Math.ceil(max*10)/10;
+    var X = function(v){return left + v/max*(W-left-right)};
+    var g = "";
+    for (var v=0; v<=max+1e-9; v+= max>.5?.2:.1){ g += '<line x1="'+X(v)+'" x2="'+X(v)+'" y1="'+top+'" y2="'+(H-22)+'" style="stroke:var(--grid)"/><text x="'+X(v)+'" y="'+(H-6)+'" text-anchor="middle" font-size="13" style="fill:var(--muted)">'+Math.round(v*100)+'%</text>' }
+    TYPES.forEach(function(T,i){
+      var y = top + i*rowH, v = agg.byType[i];
+      g += '<text x="'+(left-10)+'" y="'+(y+rowH/2+4)+'" text-anchor="end" font-size="14" style="fill:var(--ink)">'+T.name+'</text>';
+      g += '<rect x="'+left+'" y="'+(y+7)+'" width="'+Math.max(2,X(v)-left)+'" height="'+(rowH-14)+'" rx="3" style="fill:var(--s-arr)"><title>'+T.name+': '+fmtPct(v)+'</title></rect>';
+      g += '<text x="'+(X(v)+6)+'" y="'+(y+rowH/2+4)+'" font-size="14" font-weight="600" style="fill:var(--ink)">'+fmtPct(v)+'</text>';
+      if (refAgg){ var rv = refAgg.byType[i]; g += '<line x1="'+X(rv)+'" x2="'+X(rv)+'" y1="'+(y+3)+'" y2="'+(y+rowH-3)+'" style="stroke:var(--ref);stroke-width:2.5"><title>Referencia: '+fmtPct(rv)+'</title></line>' }
+    });
+    $("barwrap").innerHTML = '<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="min-width:600px" role="img" aria-label="Porcentaje de hogares de cada tipo que pasó por atraso">'+g+'</svg></div>'+(refAgg?'<p class="note" style="margin-top:6px">La marca gris indica el valor en el escenario de referencia.</p>':'');
+  }
+
+  function hover(wrap, html, onClick){
+    var svg = wrap.querySelector("svg"), tip = wrap.querySelector(".tip");
+    function at(ev){ var r = svg.getBoundingClientRect(); var x = (ev.clientX - r.left)/r.width*CW; var m = Math.round((x-M.l)/(CW-M.l-M.r)*MONTHS); return Math.max(0,Math.min(MONTHS,m)) }
+    svg.addEventListener("pointermove", function(ev){
+      var m = at(ev), r = svg.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
+      tip.hidden = false; tip.innerHTML = html(m);
+      var left = ev.clientX - wr.left + 14; if (left + 170 > wr.width) left = ev.clientX - wr.left - 184;
+      tip.style.left = Math.max(0,left)+"px"; tip.style.top = Math.max(0, ev.clientY - wr.top - 40)+"px";
+    });
+    svg.addEventListener("pointerleave", function(){tip.hidden = true});
+    if (onClick) svg.addEventListener("click", function(ev){ onClick(at(ev)) });
+  }
+  function moveMarks(){
+    ["amark","lmark"].forEach(function(id){ var l=$(id); if(l){ l.setAttribute("x1",xs(shown)); l.setAttribute("x2",xs(shown)) } });
+  }
+
+  // ---------- controls ----------
+  function syncControls(){
+    document.querySelectorAll("#scen button").forEach(function(b){b.setAttribute("aria-pressed", b.dataset.v===P.scen?"true":"false")});
+    $("k").value = P.k; $("k-out").textContent = P.k;
+    $("netmoney").checked = P.netmoney; $("netjobs").checked = P.netjobs; $("seg").checked = P.seg;
+    $("ui").checked = P.ui; $("tr").value = P.tr; $("tr-out").textContent = P.tr ? "$"+P.tr+" mil por 3 meses" : "sin transferencia";
+    $("delay").value = P.delay; $("delay-out").textContent = P.delay===0 ? "0 meses" : P.delay + (P.delay===1?" mes":" meses");
+    $("relief").checked = P.relief;
+    $("scen-note").textContent = P.scen==="rec" ? "Entre los meses 6 y 12, el riesgo de despido se cuadruplica para todos y el ingreso informal cae 25%." : "Los despidos llegan de a uno, repartidos en los tres años. En total se esperan aproximadamente tantos despidos como en la recesión.";
+  }
+  var deb = null;
+  function set(k,v){ P[k]=v; syncControls(); clearTimeout(deb); deb = setTimeout(recompute, 140) }
+  document.querySelectorAll("#scen button").forEach(function(b){ b.addEventListener("click", function(){ set("scen", b.dataset.v) }) });
+  $("k").addEventListener("input", function(){ set("k", +this.value) });
+  ["netmoney","netjobs","seg","ui","relief"].forEach(function(id){ $(id).addEventListener("change", function(){ set(id, this.checked) }) });
+  $("tr").addEventListener("input", function(){ set("tr", +this.value) });
+  $("delay").addEventListener("input", function(){ set("delay", +this.value) });
+  $("scrub").addEventListener("input", function(){ shown = +this.value; stop(); renderNet(); renderMonth(); moveMarks() });
+  $("reseed").addEventListener("click", function(){ seed = Math.floor(Math.random()*1e6); recompute() });
+
+  function stop(){ if (timer){ clearInterval(timer); timer=null; $("playbtn").textContent="Reproducir" } }
+  $("playbtn").addEventListener("click", function(){
+    if (timer){ stop(); return }
+    if (shown>=MONTHS) shown = 0;
+    $("playbtn").textContent = "Pausar";
+    var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    timer = setInterval(function(){
+      shown++; renderNet(); renderMonth(); moveMarks();
+      if (shown>=MONTHS) stop();
+    }, reduce ? 600 : 380);
+  });
+
+  $("setref").addEventListener("click", function(){
+    ref = JSON.parse(JSON.stringify(P)); refAgg = agg;
+    $("clearref").hidden = false; $("ref-note").textContent = "Referencia fijada. Cambia un parámetro y compara.";
+    renderAll();
+  });
+  $("clearref").addEventListener("click", function(){ ref=null; refAgg=null; $("clearref").hidden = true; $("ref-note").textContent = "Fija el escenario actual, cambia algo y compara."; $("finding").hidden = true; renderAll() });
+
+  // ---------- experiments ----------
+  var BASE = {scen:"rec", k:4, netmoney:true, netjobs:true, seg:true, ui:true, tr:0, delay:3, relief:false};
+  var EXPS = [
+    {t:"¿La red alcanza cuando todos caen a la vez?", d:"Compara golpes individuales con una recesión, con la misma red de ayuda.",
+     a:{scen:"indiv"}, b:{scen:"rec"}, metric:"help", reads:"Lusardi et al. 2011 · Espinosa et al. 2014 · Antonucci 2018",
+     say:function(A,B){var t="Con golpes repartidos en el tiempo, el "+fmtPct(A.ever)+" de los hogares pasa por un atraso; si los mismos despidos esperados se concentran en una recesión, el "+fmtPct(B.ever)+". Cuando los golpes llegan juntos, cuesta más volver a encontrar trabajo";
+       if (A.netShare - B.netShare > .01) t += " y los contactos alcanzan a cubrir una parte menor de los déficits ("+fmtPct(A.netShare)+" frente a "+fmtPct(B.netShare)+")";
+       else t += "; los contactos cubren una parte parecida de los déficits ("+fmtPct(A.netShare)+" y "+fmtPct(B.netShare)+"), pero los déficits son más grandes";
+       return t + ".";}},
+    {t:"¿Importa cuándo llega el apoyo?", d:"La misma transferencia de $200 mil por tres meses, con 5 meses de retraso o sin retraso.",
+     a:{tr:200, delay:5}, b:{tr:200, delay:0}, reads:"Hill et al. 2017 · Hacker et al. 2014",
+     say:function(A,B){return "Con la transferencia tardía, el "+fmtPct(A.ever)+" pasa por un atraso; si llega de inmediato, el "+fmtPct(B.ever)+". El crédito nuevo por hogar baja de $"+Math.round(A.debt)+" mil a $"+Math.round(B.debt)+" mil. Cuando el apoyo llega tarde, muchos hogares ya agotaron su ahorro, pidieron a su red o se endeudaron."}},
+    {t:"¿Qué hace la segregación?", d:"Hogares mezclados en el territorio frente a barrios separados por tipo de hogar, con ayuda en dinero y empleo.",
+     a:{seg:false}, b:{seg:true}, reads:"Killewald et al. 2017 · Antonucci 2018 · Mau et al. 2012",
+     say:function(A,B){
+       var ia = A.byType[0], ib = B.byType[0];
+       return "Para los hogares informales endeudados, la proporción que pasa por atraso es "+fmtPct(ia)+" con barrios mezclados y "+fmtPct(ib)+" con barrios segregados. Cuando los contactos de un hogar frágil son igual de frágiles, la red tiene menos que prestar y menos empleos que recomendar."}},
+    {t:"¿Y si las cuotas esperan?", d:"Recesión sin alivio frente a postergar tres meses las cuotas de deuda a quien pierde el empleo.",
+     a:{relief:false}, b:{relief:true}, reads:"Dwyer 2018 · Ruiz-Tagle y Vella 2016",
+     say:function(A,B){var t="Sin alivio, el "+fmtPct(A.ever)+" pasa por un atraso; con cuotas postergadas, el "+fmtPct(B.ever)+".";
+       if (A.ever - B.ever < .03) t += " La diferencia es pequeña en este modelo: postergar cuotas da aire, pero no reemplaza el ingreso perdido, y cuando las cuotas vuelven muchos hogares siguen sin trabajo.";
+       else t += " Las cuotas no se ajustan cuando cae el ingreso; darles tiempo cambia la secuencia, aunque la deuda siga ahí.";
+       return t;}}
+  ];
+  $("exps").innerHTML = EXPS.map(function(e,i){return '<article class="exp"><h3>'+e.t+'</h3><p>'+e.d+'</p><p class="reads">Para leer: '+e.reads+'</p><button type="button" class="btn" data-exp="'+i+'">Probar</button></article>'}).join("");
+  document.querySelectorAll("[data-exp]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var e = EXPS[+b.dataset.exp];
+      var A = Object.assign({}, BASE, e.a), B = Object.assign({}, BASE, e.b);
+      ref = A; refAgg = aggregate(A);
+      P = B; syncControls(); recompute();
+      $("clearref").hidden = false; $("ref-note").textContent = "Referencia: el escenario inicial del experimento.";
+      var f = $("finding"); f.hidden = false; f.innerHTML = "<b>"+e.t+"</b><br>"+e.say(refAgg, agg) + " <span class=\"note\">Resultados de este modelo con montos ilustrativos, promedio de 30 corridas. La línea y las marcas grises muestran la referencia.</span>";
+      document.querySelector(".results").scrollIntoView({behavior:"smooth", block:"start"});
+    });
+  });
+
+  // ---------- type table ----------
+  $("typetable").innerHTML = TYPES.map(function(T){
+    return "<tr><td>"+T.name+"</td><td class=\"n\">"+Math.round(T.share*N)+"</td><td class=\"n\">$"+T.inc.toLocaleString("es-CL")+"</td><td class=\"n\">"+String(T.sav).replace(".",",")+"</td><td class=\"n\">"+Math.round(T.debt*100)+"%</td><td class=\"n\">"+Math.round(T.fixed*100)+"%</td><td>"+(T.pens?"pensión estable":Math.round(T.formal*100)+"% con contrato")+"</td></tr>";
+  }).join("");
+
+  window.__labSim = {aggregate:aggregate, BASE:BASE};
+  syncControls(); recompute();
+  if (window.matchMedia){ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){ renderNet() }) }
+  new MutationObserver(function(){ renderNet() }).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+})();
+</script>
+
+</body>
+</html>
