@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Laboratorio de Seguridad Económica · propuesta</title>
+<title>Laboratorio de Seguridad Económica</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
@@ -41,6 +41,10 @@ p{margin:0}
 .nav{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 .nav a{text-decoration:none;color:var(--ink2);font-weight:600;padding:10px 14px;border-radius:999px}
 .nav a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.nav a.about{color:var(--ink2);font-weight:600}
+.nav a.about:hover{color:var(--buf)}
+.foot b{color:var(--ink)}
+.foot a{color:var(--ink2)}
 .lang{margin-left:6px;min-height:40px;border:2px solid var(--ink);background:transparent;border-radius:999px;padding:0 14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
 .lang span{opacity:.45}.lang span.on{opacity:1}
 
@@ -298,6 +302,7 @@ select{min-height:42px;border:1.5px solid var(--line);border-radius:12px;backgro
   <nav class="nav" aria-label="Principal">
     <a href="#aprender" data-nav="aprender" data-i18n="navLearn"></a>
     <a href="#laboratorio" data-nav="laboratorio" data-i18n="navLab"></a>
+    <a href="https://gonzalotr11.github.io/" id="about" class="about" target="_blank" rel="noopener" data-i18n="about"></a>
     <button class="lang" id="lang" type="button" aria-label="Cambiar idioma / Change language"><span data-l="es">ES</span><span data-l="en">EN</span></button>
   </nav>
 </div></header>
@@ -451,7 +456,7 @@ select{min-height:42px;border:1.5px solid var(--line);border-radius:12px;backgro
   </div>
 </section>
 </main>
-<footer class="wrap foot" data-i18n="foot"></footer>
+<footer class="wrap foot" data-i18n-html="foot"></footer>
 
 <script>
 /* ============ TEXTOS ============ */
@@ -513,7 +518,7 @@ st:{arr:"terminan con cuentas atrasadas",card:"usaron avance en efectivo",debt:"
 assumpT:"Supuestos de la simulación",
 A:[["Ponerse al día","Después del golpe, el hogar recorta hasta 6% de sus gastos para pagar atrasos.","supuesto"],["Seguro de cesantía","70%, 55%, 45%, 40% y 35% del ingreso perdido, meses 1 a 5. Solo con contrato.","AFC Chile"],["Recorte de gastos","Hasta 8% de los gastos fijos","supuesto"],["Familia y amigos","Probabilidad de ayudar: 85% fuerte, 55% algo, 30% débil. Cada ayuda baja la siguiente (fatiga de la red).","supuesto"],["Monto que da la familia","Hasta $400.000, $200.000 o $90.000 por mes según la red","supuesto"],["Crédito bancario","Aprobación 70% con contrato y sin atrasos, 30% con atrasos, 20% sin contrato. Tasa 29,6% anual, 12 cuotas.","tasa corriente 2026"],["Avance en efectivo","Cupo $300.000. Tasa 41,1% anual, 6 cuotas.","tasa máxima convencional"],["Lo que sobra","Primero paga atrasos; el resto se ahorra.","supuesto"],["Estrés financiero","Índice 0–100 según hueco del mes, atrasos, peso de las cuotas y ayuda pedida. Ilustrativo, no es una medida clínica.","supuesto"]],
 assumpH:["Elemento","Cómo funciona","Fuente"],
-foot:"Laboratorio de Seguridad Económica · Gonzalo Torres · Propuesta de rediseño, octubre de 2026. Montos en pesos chilenos, ilustrativos.",
+foot:"Herramienta creada por <b>Gonzalo Torres Rosales</b> · <a href='https://gonzalotr11.github.io/'>gonzalotr11.github.io</a><br>Versión de octubre de 2026. Montos en pesos chilenos, ilustrativos y calibrados con referencias públicas.",about:"Sobre el autor ↗",aboutUrl:"https://gonzalotr11.github.io/",
 PRESET:{madre:["Madre sola con dos hijos","Trabaja sin contrato y vive allegada."],dos:["Familia que arrienda con dos ingresos","Uno con contrato, otra por cuenta propia."],clase:["Familia de clase media con dividendo","Ambos con contrato, poco ahorro."],mayores:["Pareja de adultos mayores","Viven de pensiones bajas, sin ahorro."]}
 },
 en:{
@@ -573,7 +578,7 @@ st:{arr:"end with overdue bills",card:"used a cash advance",debt:"new debt still
 assumpT:"Simulation assumptions",
 A:[["Catching up","After the shock, the household cuts up to 6% of spending to pay overdue bills.","assumption"],["Unemployment insurance","70%, 55%, 45%, 40% and 35% of lost income, months 1 to 5. Contract workers only.","AFC Chile"],["Spending cuts","Up to 8% of fixed expenses","assumption"],["Family and friends","Probability of helping: 85% strong, 55% some, 30% weak. Each time they help, the next is less likely (network fatigue).","assumption"],["Amount family gives","Up to CLP 400,000, 200,000 or 90,000 per month depending on the network","assumption"],["Bank loan","Approval 70% with contract and no arrears, 30% with arrears, 20% without contract. 29.6% annual rate, 12 installments.","2026 market rate"],["Cash advance","Limit CLP 300,000. 41.1% annual rate, 6 installments.","legal maximum rate"],["Surplus","First pays overdue bills; the rest is saved.","assumption"],["Financial stress","0–100 index from the month's shortfall, arrears, installment burden and help requested. Illustrative, not a clinical measure.","assumption"]],
 assumpH:["Element","How it works","Source"],
-foot:"Economic Security Lab · Gonzalo Torres · Redesign proposal, October 2026. Amounts in Chilean pesos, illustrative.",
+foot:"Tool created by <b>Gonzalo Torres Rosales</b> · <a href='https://gonzalotr11.github.io/index-en.html'>gonzalotr11.github.io</a><br>October 2026 version. Amounts in Chilean pesos, illustrative and calibrated with public references.",about:"About the author ↗",aboutUrl:"https://gonzalotr11.github.io/index-en.html",
 PRESET:{madre:["Single mother with two children","Works without a contract, lives with relatives."],dos:["Renting family with two incomes","One with a contract, one self-employed."],clase:["Middle-class family with a mortgage","Both with contracts, little savings."],mayores:["Older couple","Living on low pensions, no savings."]}
 }};
 
@@ -782,6 +787,7 @@ function applyLang(){
   document.documentElement.lang=lang;
   document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t(el.dataset.i18n);if(typeof v==='string')el.textContent=v});
   document.querySelectorAll('[data-i18n-html]').forEach(el=>el.innerHTML=t(el.dataset.i18nHtml));
+  document.getElementById('about').href=t('aboutUrl');
   document.querySelectorAll('#lang span').forEach(s=>s.classList.toggle('on',s.dataset.l===lang));
   document.getElementById('v-aprender').innerHTML=LEARN[lang];linkCites(document.getElementById('v-aprender'));
   document.title=t('brand');
