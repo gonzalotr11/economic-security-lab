@@ -2,900 +2,1111 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
-<title>Cuando algo falla</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratorio de Seguridad Económica · propuesta</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Public+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one reading column (~68ch) with three wide "workbench" bands: the simulator, the three layers, the evidence grid. */
 :root{
-  --bg:#F2F4F3; --surface:#FFFFFF; --ink:#16232A; --muted:#55636A; --line:#D5DCDA;
-  --buffer:#1C7466; --buffer-soft:#DCEDE9;
-  --shock:#C2462D; --shock-soft:#F6E1DB;
-  --debt:#A86B12; --debt-soft:#F4E8D2;
-  --family:#6550A6; --family-soft:#E7E2F4;
-  --public:#2D62A8; --public-soft:#DDE7F5;
-  --display:"Spectral", Georgia, "Times New Roman", serif;
-  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --bg:#FFFFFF; --surface:#F5F7F6; --surface2:#EDF1EF; --ink:#172026; --ink2:#3A464D; --muted:#5E6A71; --line:#E3E7EA;
+  --inc:#12A150; --inc-t:#0B7A3B; --buf:#2F6BFF; --shock:#FF5A1F; --shock-t:#C2410C; --debt:#C81D6B; --card:#7A0F45; --fam:#6E44D9; --pub:#0E8F9A; --cut:#A3ADB3; --arr:#B42318; --hl:#FFD23F;
+  --f-title:"Archivo","Helvetica Neue",sans-serif; --f-body:"Public Sans","Helvetica Neue",sans-serif; --f-mono:"DM Mono",ui-monospace,Menlo,monospace;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#111A1E; --surface:#18252A; --ink:#E6ECEA; --muted:#9AA9AE; --line:#2C3B41;
-  --buffer:#4FB8A5; --buffer-soft:#1B3833; --shock:#EC7A60; --shock-soft:#43241E;
-  --debt:#E0A84A; --debt-soft:#3B2E17; --family:#A595E0; --family-soft:#2C2645;
-  --public:#79A6E6; --public-soft:#1E2E45; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#111A1E; --surface:#18252A; --ink:#E6ECEA; --muted:#9AA9AE; --line:#2C3B41;
-  --buffer:#4FB8A5; --buffer-soft:#1B3833; --shock:#EC7A60; --shock-soft:#43241E;
-  --debt:#E0A84A; --debt-soft:#3B2E17; --family:#A595E0; --family-soft:#2C2645;
-  --public:#79A6E6; --public-soft:#1E2E45; color-scheme:dark}
-
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1417; --surface:#172026; --surface2:#1D282F; --ink:#EEF2F3; --ink2:#C9D2D6; --muted:#9AA6AC; --line:#2A363D;
+  --inc:#2BC46B; --inc-t:#4FD487; --buf:#5B8CFF; --shock:#FF7A45; --shock-t:#FF915F; --debt:#EC4C93; --card:#C2417F; --fam:#9A7BFF; --pub:#2FC0CB; --cut:#6E7B82; --arr:#F0645A; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1417; --surface:#172026; --surface2:#1D282F; --ink:#EEF2F3; --ink2:#C9D2D6; --muted:#9AA6AC; --line:#2A363D;
+  --inc:#2BC46B; --inc-t:#4FD487; --buf:#5B8CFF; --shock:#FF7A45; --shock-t:#FF915F; --debt:#EC4C93; --card:#C2417F; --fam:#9A7BFF; --pub:#2FC0CB; --cut:#6E7B82; --arr:#F0645A; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;padding-inline:20px;padding-block:0 64px}
-a{color:var(--buffer);text-underline-offset:3px}
-a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--buffer);outline-offset:3px;border-radius:4px}
-h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.15;text-wrap:balance;margin:0}
-h2{font-size:clamp(1.7rem,4vw,2.3rem)}
-h3{font-size:1.2rem}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--ink)}
+body{margin:0;font-family:var(--f-body);font-size:16.5px;line-height:1.55}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--buf)}
+:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:clamp(16px,4vw,40px)}
+.mono{font-family:var(--f-mono)}
+.hl{background:linear-gradient(transparent 58%,var(--hl) 58%);color:inherit}
+h1,h2,h3,h4{font-family:var(--f-title);font-stretch:125%;font-weight:850;line-height:1.02;letter-spacing:-.01em;margin:0}
+h2{font-size:clamp(30px,4.2vw,46px)}
+h3{font-size:clamp(21px,2.4vw,26px);font-stretch:112%;font-weight:800}
 p{margin:0}
-.col{max-width:680px;margin-inline:auto}
-.wide{max-width:1080px;margin-inline:auto}
-section{padding-block:64px 8px}
-.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
-.lede{font-size:1.1rem;color:var(--muted);margin-top:14px}
-.stack{display:grid;gap:16px}
 
-/* nav */
-nav.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-20px;padding:10px 20px}
-nav.top .wide{display:flex;gap:18px;align-items:center;overflow-x:auto;scrollbar-width:none;white-space:nowrap}
-nav.top .brand{font-family:var(--mono);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;font-weight:500;margin-right:auto;padding-right:12px}
-nav.top a{font-size:.88rem;color:var(--muted);text-decoration:none}
-nav.top a:hover{color:var(--ink)}
+/* barra superior */
+.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px 20px;min-height:66px;flex-wrap:wrap;padding-block:8px}
+.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:var(--f-title);font-stretch:125%;font-weight:800;font-size:17px}
+.brand svg{flex:none}
+.nav{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.nav a{text-decoration:none;color:var(--ink2);font-weight:600;padding:10px 14px;border-radius:999px}
+.nav a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.lang{margin-left:6px;min-height:40px;border:2px solid var(--ink);background:transparent;border-radius:999px;padding:0 14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.lang span{opacity:.45}.lang span.on{opacity:1}
 
-/* hero */
-.hero{padding-block:72px 16px}
-.hero h1{font-size:clamp(2.4rem,7vw,4.2rem);letter-spacing:-.01em}
-.hero h1 em{font-style:italic;font-weight:500;color:var(--shock)}
-.hero .lede{font-size:1.2rem;max-width:58ch}
-.thesis{margin-top:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-.thesis div{border-top:2px solid var(--ink);padding-top:10px;font-size:.98rem}
-.thesis b{display:block;font-family:var(--display);font-size:1.15rem}
+/* inicio */
+.home{padding-block:clamp(56px,10vw,110px) 80px;text-align:center}
+.home h1{font-size:clamp(40px,6.4vw,76px);max-width:15ch;margin:0 auto}
+.home .lead{max-width:640px;margin:22px auto 0;font-size:19px;color:var(--ink2)}
+.doors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:48px;text-align:left}
+@media (max-width:760px){.doors{grid-template-columns:minmax(0,1fr)}}
+.door{display:flex;flex-direction:column;gap:14px;text-decoration:none;color:var(--ink);background:var(--surface);border:2px solid transparent;border-radius:24px;padding:30px 30px 26px;min-height:270px;transition:border-color .15s,transform .15s}
+.door:hover{border-color:var(--ink);transform:translateY(-2px)}
+.door.lab{background:var(--ink);color:var(--bg)}
+.door.lab .door-sub{color:color-mix(in srgb,var(--bg) 75%,transparent)}
+.door h2{font-size:clamp(26px,3vw,34px)}
+.door-sub{color:var(--ink2);font-size:16.5px;max-width:42ch}
+.door .go{margin-top:auto;display:inline-flex;align-items:center;gap:10px;font-weight:700}
+.door .icons{display:flex;gap:8px}
+.home .note{margin-top:30px;color:var(--muted);font-size:14.5px}
 
-/* builder: menu | stage | papers */
-.builder{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr) minmax(0,280px);gap:18px;margin-top:28px;align-items:start}
-@media (max-width:1020px){.builder{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.stagecard{grid-column:1/-1;order:-1}}
-@media (max-width:640px){.builder{grid-template-columns:1fr}}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:14px;min-width:0}
-.panel h3{font-size:1.05rem}
-.group{display:grid;gap:6px}
-.group-title{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
-.group-title i{width:8px;height:8px;border-radius:2px;display:inline-block}
-.g-exp .group-title{color:var(--shock)} .g-exp .group-title i{background:var(--shock)}
-.g-buf .group-title{color:var(--buffer)} .g-buf .group-title i{background:var(--buffer)}
-.g-int .group-title{color:var(--family)} .g-int .group-title i{background:var(--family)}
-.chipbtn{font:inherit;font-size:.88rem;text-align:left;display:flex;align-items:center;gap:8px;width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:7px 10px;cursor:pointer}
-.chipbtn .box{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--muted);flex:none;display:grid;place-items:center;font-size:10px;line-height:1}
-.chipbtn[aria-pressed="true"]{border-color:var(--c);background:var(--c-soft)}
-.chipbtn[aria-pressed="true"] .box{background:var(--c);border-color:var(--c);color:#fff}
-.chipbtn[aria-pressed="true"] .box::after{content:"✓"}
-.g-exp .chipbtn{--c:var(--shock);--c-soft:var(--shock-soft)}
-.g-buf .chipbtn{--c:var(--buffer);--c-soft:var(--buffer-soft)}
-.g-int .chipbtn{--c:var(--family);--c-soft:var(--family-soft)}
-.presets{display:flex;flex-wrap:wrap;gap:6px}
-.presets button,.ghost{font:inherit;font-size:.8rem;border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:5px 10px;cursor:pointer}
-.presets button:hover,.ghost:hover{color:var(--ink);border-color:var(--muted)}
-.stagecard{padding:14px}
-.stage{width:100%;height:auto;display:block}
-.stage text{font-family:var(--body)}
-.gauge-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font-size:.88rem}
-.gauge{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--buffer),var(--debt),var(--shock));position:relative}
-.gauge b{position:absolute;top:-5px;width:4px;height:20px;border-radius:2px;background:var(--ink);transition:left .4s ease;transform:translateX(-2px)}
-.status{font-weight:700;font-family:var(--display);font-size:1.1rem}
-.shockbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.shockbar button{font:inherit;font-size:.88rem;border:1px solid var(--shock);color:var(--shock);background:transparent;border-radius:999px;padding:7px 12px;cursor:pointer}
-.shockbar button:hover{background:var(--shock-soft)}
-.shockbar button:disabled{opacity:.45;cursor:default}
-.outcome{border-radius:8px;padding:12px 14px;font-size:.92rem;background:var(--bg);border:1px solid var(--line);display:grid;gap:6px}
-.outcome strong{font-family:var(--display);font-size:1.05rem}
-.mechtags{display:flex;flex-wrap:wrap;gap:6px}
-.mechtag{font:inherit;font-size:.8rem;border-radius:999px;padding:4px 10px;border:1px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer}
-.mechtag[data-on="false"]{opacity:.35;border-style:dashed;cursor:default}
-.mechtag[aria-expanded="true"]{background:var(--ink);color:var(--bg)}
-.mechinfo{font-size:.9rem;background:var(--bg);border-radius:8px;padding:10px 12px;border:1px solid var(--line)}
-.mechinfo .chain{margin-top:6px}
-.paperlist{display:grid;gap:10px;margin:0;padding:0;list-style:none}
-.paper{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg);display:grid;gap:4px;animation:fadein .35s ease}
-@keyframes fadein{from{transform:translateY(4px);opacity:.4}to{transform:none;opacity:1}}
-.paper a{font-weight:600;font-size:.9rem;color:var(--ink);text-decoration:none}
-.paper a:hover{text-decoration:underline}
-.paper .cite{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
-.paper p{font-size:.84rem}
-.why{display:flex;flex-wrap:wrap;gap:4px}
-.why span{font-size:.7rem;border-radius:4px;padding:1px 6px;background:var(--surface);border:1px solid var(--line);color:var(--muted)}
-.why span.cl{border-color:var(--buffer);color:var(--buffer)}
-.toggle-cl{display:flex;align-items:center;gap:8px;font-size:.84rem;color:var(--muted)}
-.hint{font-size:.84rem;color:var(--muted)}
-/* svg pieces */
-.slab{transition:transform .6s ease, opacity .4s ease;transform-box:fill-box;transform-origin:left center}
-.housegroup{transition:transform .6s cubic-bezier(.3,1.4,.5,1)}
-.burden{transition:opacity .3s ease, transform .4s ease}
-.rock{transition:transform .55s cubic-bezier(.55,0,1,.45), opacity .3s}
-.crack{transition:opacity .4s ease}
-.label{font-size:.82rem;font-weight:600;color:var(--muted);margin-bottom:8px;display:block}
-.disclaimer{margin-top:14px;font-size:.82rem;color:var(--muted)}
-.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.9rem}
-
-/* formula */
-.formula{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:24px;font-family:var(--display);font-size:clamp(1.05rem,2.6vw,1.35rem)}
-.term{padding:10px 14px;border-radius:8px;border:1px solid}
-.t-exp{background:var(--shock-soft);border-color:var(--shock)}
-.t-buf{background:var(--buffer-soft);border-color:var(--buffer)}
-.t-int{background:var(--family-soft);border-color:var(--family)}
-.op{font-family:var(--mono);color:var(--muted)}
-.formula .result{font-weight:700}
-.fineprint{font-size:.92rem;color:var(--muted);margin-top:14px}
-
-/* layers */
-.layers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:28px;align-items:stretch}
-@media (max-width:820px){.layers{grid-template-columns:1fr}}
-.layer{padding:20px;position:relative;border:1px solid var(--line);background:var(--surface)}
-.layer:first-child{border-radius:12px 0 0 12px}
-.layer:last-child{border-radius:0 12px 12px 0}
-.layer+.layer{border-left:none}
-@media (max-width:820px){.layer:first-child{border-radius:12px 12px 0 0}.layer:last-child{border-radius:0 0 12px 12px}.layer+.layer{border-left:1px solid var(--line);border-top:none}}
-.layer .tag{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase}
-.layer h3{margin:6px 0 4px}
-.layer .q{font-size:.92rem;color:var(--muted);margin-bottom:12px}
-.layer ul{margin:0;padding-left:18px;font-size:.93rem}
-.l-a .tag{color:var(--shock)} .l-b .tag{color:var(--buffer)} .l-c .tag{color:var(--family)}
-.layer::after{content:"→";position:absolute;right:-13px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-size:.85rem;z-index:2}
-.layer:last-child::after{display:none}
-@media (max-width:820px){.layer::after{content:"↓";right:auto;left:50%;top:auto;bottom:-13px;transform:translateX(-50%)}}
-.path{margin-top:22px;display:grid;gap:10px}
-.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.9rem}
-.chain span{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 9px}
-.chain b{color:var(--muted);font-weight:400}
-
-/* mechanisms */
-.mechs{margin-top:24px;display:grid;gap:10px}
-details.mech{background:var(--surface);border:1px solid var(--line);border-radius:10px}
-details.mech summary{list-style:none;cursor:pointer;padding:16px 18px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:baseline}
+/* aprender */
+.learn section{padding-block:56px;border-top:1px solid var(--line)}
+.learn section:first-child{border-top:0}
+.statement{text-align:center;padding-block:72px 56px!important}
+.statement h2{font-size:clamp(34px,5vw,58px);max-width:20ch;margin:0 auto}
+.statement p{max-width:680px;margin:20px auto 0;font-size:18.5px;color:var(--ink2)}
+.formula{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin-top:30px;font-weight:700}
+.formula .t{padding:10px 16px;border-radius:999px;background:var(--surface)}
+.formula .t.s{background:color-mix(in srgb,var(--shock) 14%,var(--bg));color:var(--shock-t)}
+.formula .t.b{background:color-mix(in srgb,var(--buf) 13%,var(--bg));color:var(--buf)}
+.formula .t.r{background:var(--ink);color:var(--bg)}
+.formula .op{font-family:var(--f-mono);font-size:22px;color:var(--muted)}
+.sec-head{display:grid;gap:12px;margin-bottom:28px;max-width:720px}
+.sec-head.right{margin-left:auto;text-align:right}
+.sec-head.center{margin-inline:auto;text-align:center}
+.sec-head p{color:var(--ink2);font-size:17.5px}
+.layers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:860px){.layers{grid-template-columns:minmax(0,1fr)}}
+.layer{border-radius:20px;padding:22px;background:var(--surface);display:flex;flex-direction:column;gap:10px}
+.layer .k{font-family:var(--f-mono);font-size:13px;font-weight:500}
+.layer.a .k{color:var(--shock-t)}.layer.b .k{color:var(--buf)}.layer.c .k{color:var(--debt)}
+.layer ul{margin:4px 0 0;padding-left:18px;color:var(--ink2)}
+.chains{display:grid;gap:10px;margin-top:18px}
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:15px}
+.chain span{background:var(--surface);border-radius:999px;padding:5px 12px}
+.chain i{font-style:normal;color:var(--muted)}
+.mechs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:860px){.mechs{grid-template-columns:minmax(0,1fr)}}
+details.mech{border:1px solid var(--line);border-radius:18px;padding:0;background:var(--bg)}
+details.mech summary{list-style:none;cursor:pointer;padding:18px 20px;display:grid;grid-template-columns:44px minmax(0,1fr) 24px;gap:12px;align-items:center}
 details.mech summary::-webkit-details-marker{display:none}
-.mnum{font-family:var(--mono);font-size:.82rem;color:var(--muted)}
-.mtitle{font-family:var(--display);font-size:1.15rem;font-weight:700}
-.mtitle small{display:block;font-family:var(--body);font-weight:400;font-size:.92rem;color:var(--muted);margin-top:2px}
-.plus{font-family:var(--mono);color:var(--muted);transition:transform .2s}
-details[open] .plus{transform:rotate(45deg)}
-.mbody{padding:0 18px 18px;display:grid;gap:12px;font-size:.96rem}
-.mbody .chain span{background:var(--bg)}
-.reads{font-size:.86rem;color:var(--muted)}
-
-/* ladder */
-.ladder{margin-top:26px;display:grid;gap:6px}
-.rung{display:grid;grid-template-columns:minmax(0,1fr);}
-.rung div{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between;gap:12px;font-size:.95rem}
-.rung div small{color:var(--muted)}
-.ladder-axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:6px}
-
-/* evidence */
-.evidence{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:26px}
-.ev{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:10px;align-content:start}
-.ev .fig{font-family:var(--display);font-size:2rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
-.ev p{font-size:.94rem}
-.ev .src{font-size:.8rem;color:var(--muted);font-family:var(--mono)}
-.ev .where{display:inline-block;font-size:.72rem;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--muted);justify-self:start}
-.ev.cl .where{border-color:var(--buffer);color:var(--buffer)}
-
-/* table */
-.tablewrap{overflow-x:auto;margin-top:24px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-table{border-collapse:collapse;width:100%;min-width:640px;font-size:.92rem}
+details.mech .n{font-family:var(--f-mono);font-size:13px;width:40px;height:40px;border-radius:50%;background:var(--ink);color:var(--bg);display:inline-flex;align-items:center;justify-content:center}
+details.mech .tt{font-weight:700;font-size:17px}
+details.mech .ss{display:block;font-size:14.5px;color:var(--muted);font-weight:400}
+details.mech .plus{font-size:22px;color:var(--muted);transition:transform .2s}
+details.mech[open] .plus{transform:rotate(45deg)}
+details.mech .body{padding:0 20px 20px 76px;display:grid;gap:10px;color:var(--ink2)}
+details.mech .path{font-family:var(--f-mono);font-size:13px;color:var(--ink);background:var(--surface);border-radius:12px;padding:10px 12px}
+details.mech .read{font-size:14px;color:var(--muted)}
+.ladder{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;align-items:end;margin-top:8px}
+@media (max-width:760px){.ladder{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rung{border-radius:14px;padding:14px;color:#fff;font-weight:600;font-size:15px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px}
+.rung small{font-weight:400;opacity:.9;font-size:13px}
+.ladder-scale{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);margin-top:8px}
+.evid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.ev{border-radius:18px;background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:8px}
+.ev .where{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.ev .big{font-family:var(--f-title);font-stretch:112%;font-weight:850;font-size:28px;line-height:1.05}
+.ev .src{margin-top:auto;font-size:13.5px;color:var(--muted)}
+.ev.cl .where{color:var(--inc-t);font-weight:500}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:16px}
+table{border-collapse:collapse;width:100%;font-size:15px}
 th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:.78rem;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
-tr:last-child td{border-bottom:none}
-td:first-child{font-weight:600}
+th{background:var(--surface);font-weight:700;font-size:14px}
+tr:last-child td{border-bottom:0}
+.routes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.route{border:1px solid var(--line);border-radius:18px;padding:20px}
+.route h3{font-size:20px;margin-bottom:10px}
+.route ol{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15px}
+.route li span{display:block;color:var(--muted);font-size:13.5px}
+.route li a{color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}.route li a:hover{text-decoration-color:var(--buf)}
+.read a,.src a,.cite-me a,td a{color:inherit;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--buf) 55%,transparent);text-underline-offset:3px}
+.read a:hover,.src a:hover,.cite-me a:hover,td a:hover{color:var(--buf)}
+.cta{margin-top:28px;display:flex;justify-content:center}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 22px;border-radius:999px;border:2px solid var(--ink);background:transparent;font-weight:700;cursor:pointer;text-decoration:none;color:var(--ink)}
+.btn.solid{background:var(--ink);color:var(--bg)}
+.btn.shock{border-color:var(--shock);color:var(--shock-t)}
+.btn.shock[aria-pressed="true"]{background:var(--shock);color:#fff}
+.btn:disabled{opacity:.35;cursor:not-allowed}
 
-/* agenda + readings */
-.agenda{margin-top:20px;padding-left:20px;display:grid;gap:8px}
-.routes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:24px}
-.route{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
-.route h3{font-size:1.08rem;margin-bottom:10px}
-.route ol{margin:0;padding-left:18px;display:grid;gap:8px;font-size:.88rem}
-.route li span{display:block;color:var(--muted);font-size:.82rem}
-footer{margin-top:72px;border-top:1px solid var(--line);padding-top:20px;font-size:.85rem;color:var(--muted)}
+/* laboratorio */
+.labhead{padding-block:44px 18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px 32px;align-items:end}
+@media (max-width:760px){.labhead{grid-template-columns:minmax(0,1fr)}}
+.labhead p{color:var(--ink2);max-width:62ch;margin-top:12px;font-size:17.5px}
+.modes{display:inline-flex;flex-wrap:wrap;background:var(--surface);border-radius:999px;padding:5px;gap:4px}
+.modes a{text-decoration:none;color:var(--ink2);font-weight:700;padding:11px 18px;border-radius:999px;white-space:nowrap}
+.modes a[aria-current="true"]{background:var(--ink);color:var(--bg)}
+
+/* arma un hogar */
+.build{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;padding-bottom:64px;align-items:start}
+@media (max-width:960px){.build{grid-template-columns:minmax(0,1fr)}}
+.steps{display:grid;gap:14px}
+.step{border:2px solid var(--line);border-radius:22px;padding:20px 22px;display:grid;gap:14px;transition:border-color .2s,opacity .2s}
+.step.active{border-color:var(--ink)}
+.step.locked{opacity:.45}
+.step-h{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start}
+.step-n{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:500;background:var(--surface);color:var(--ink)}
+.step.active .step-n{background:var(--ink);color:var(--bg)}
+.step.done .step-n{background:var(--inc);color:#fff}
+.step-h h3{font-size:21px}
+.step-h p{color:var(--muted);font-size:14.5px;margin-top:4px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{min-height:44px;border:1.5px solid var(--line);background:var(--bg);border-radius:14px;padding:8px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:9px;text-align:left;font-size:15px;line-height:1.25}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt .dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--line)}
+.opt[aria-pressed="true"]{border-color:var(--ink);background:var(--surface)}
+.opt.inc[aria-pressed="true"] .dot{background:var(--inc)}
+.opt.load[aria-pressed="true"] .dot{background:var(--debt)}
+.opt.buf[aria-pressed="true"] .dot{background:var(--buf)}
+.opt.plus[aria-pressed="true"] .dot{background:var(--inc)}
+.opt:disabled{opacity:.4;cursor:not-allowed}
+.opt small{display:block;color:var(--muted);font-size:12.5px}
+.sublabel{font-size:13.5px;font-weight:700;color:var(--ink2)}
+.step-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.step-foot .hint{font-size:14px;color:var(--muted)}
+.shocks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.shocks .btn{justify-content:center;border-radius:14px;min-height:52px}
+
+.panel{position:sticky;top:84px;display:grid;gap:14px}
+@media (max-width:960px){.panel{position:static}}
+.card{border-radius:22px;background:var(--surface);padding:22px}
+.strength-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.strength-top h3{font-size:20px}
+.strength-val{font-family:var(--f-mono);font-size:40px;font-weight:500;line-height:1}
+.sbar{height:22px;border-radius:999px;background:var(--surface2);overflow:hidden;margin-top:14px;position:relative}
+.sbar i{position:absolute;inset:0 auto 0 0;border-radius:999px;transition:width .45s cubic-bezier(.2,.7,.2,1),background .3s}
+.sscale{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:6px;font-family:var(--f-mono)}
+.parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:16px}
+.part{background:var(--bg);border-radius:14px;padding:10px 12px}
+.part b{display:block;font-family:var(--f-mono);font-weight:500;font-size:20px}
+.part span{font-size:13px;color:var(--muted)}
+.part.i b{color:var(--inc-t)}.part.c b{color:var(--buf)}.part.l b{color:var(--debt)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;min-height:30px}
+.chip{font-size:13px;border-radius:999px;padding:3px 10px;background:var(--bg);display:inline-flex;align-items:center;gap:6px}
+.chip i{width:8px;height:8px;border-radius:50%}
+.empty{color:var(--muted);font-size:15px}
+.impact h3{font-size:20px}
+.impact .intro{color:var(--ink2);font-size:15px;margin-top:6px}
+.meters{display:grid;gap:14px;margin-top:16px}
+.meter-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.meter-top b{font-weight:700;font-size:15px}
+.meter-top .v{font-family:var(--f-mono);font-size:18px;font-weight:500}
+.mbar{height:12px;border-radius:999px;background:var(--surface2);position:relative;margin-top:6px}
+.mbar i{position:absolute;inset:0 auto 0 0;border-radius:999px;transition:width .45s cubic-bezier(.2,.7,.2,1)}
+.mbar .ghost{position:absolute;top:-5px;bottom:-5px;width:0;border-left:2.5px dashed var(--ink);transition:left .45s}
+.meter p{font-size:13.5px;color:var(--muted);margin-top:6px}
+.legend-ghost{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-top:14px}
+.legend-ghost i{width:0;height:14px;border-left:2.5px dashed var(--ink)}
+.compare{margin-top:16px;padding:14px 16px;border-radius:14px;background:var(--bg);font-size:15px}
+.disclaimer{font-size:13px;color:var(--muted)}
+
+/* simulación */
+.simgrid{display:grid;grid-template-columns:330px minmax(0,1fr);gap:24px;align-items:start;padding-bottom:64px}
+@media (max-width:1000px){.simgrid{grid-template-columns:minmax(0,1fr)}}
+.controls{display:grid;gap:14px}
+.presets{display:grid;gap:6px}
+.preset{border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg);cursor:pointer;text-align:left;min-height:44px}
+.preset[aria-pressed="true"]{border-color:var(--ink);background:var(--surface)}
+.preset b{display:block;font-size:15px}
+.preset span{font-size:13px;color:var(--muted)}
+.field{display:grid;gap:5px}
+.field label,.field .lbl{font-size:13.5px;font-weight:700;color:var(--ink2);display:flex;justify-content:space-between;gap:8px}
+.field label output{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--ink)}
+select{min-height:42px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);padding:0 10px;width:100%}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button{flex:1;min-height:38px;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;cursor:pointer;font-size:14px;padding:0 8px}
+.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.shockrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px}.shockrow select:first-child{grid-column:1/-1}
+.box{border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:12px}
+.box h4{font-family:var(--f-title);font-stretch:112%;font-size:17px;font-weight:800}
+.outs{display:grid;gap:16px;min-width:0}
+.budget{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.budget{grid-template-columns:minmax(0,1fr)}}
+.bcell{border-radius:16px;background:var(--surface);padding:14px 16px}
+.bcell span{font-size:13.5px;color:var(--muted);display:block}
+.bcell b{font-family:var(--f-mono);font-size:24px;font-weight:500}
+.bcell.pos b{color:var(--inc-t)}.bcell.neg b{color:var(--debt)}
+.chartbox{border:1px solid var(--line);border-radius:22px;padding:18px 18px 12px;min-width:0}
+.chartbox h3{font-size:20px}
+.chartbox .sub{font-size:14.5px;color:var(--muted);margin-top:4px}
+.chart{width:100%;height:auto;display:block;margin-top:10px;overflow:visible}
+.chart text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.chart .col{cursor:pointer}
+.chart .col:hover rect.hit,.chart .col.sel rect.hit{fill:var(--ink);opacity:.06}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px;color:var(--ink2);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px}
+.monthdet{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:700px){.monthdet{grid-template-columns:minmax(0,1fr)}}
+.rows{display:grid;gap:4px;font-size:14.5px}
+.rows div{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line)}
+.rows div:last-child{border-bottom:0}
+.rows .m{font-family:var(--f-mono)}
+.rows .tot{font-weight:700}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:0}
+.story{display:grid;gap:6px;max-height:300px;overflow:auto;font-size:14.5px;padding-right:4px}
+.story div{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.story .mm{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);padding-top:2px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{border-radius:16px;background:var(--surface);padding:14px}
+.stat b{display:block;font-family:var(--f-mono);font-size:26px;font-weight:500}
+.stat span{font-size:13.5px;color:var(--ink2)}
+.assump td:last-child{font-family:var(--f-mono);font-size:13.5px;white-space:nowrap}
+.foot{border-top:1px solid var(--line);padding-block:24px 40px;color:var(--muted);font-size:14px}
+
+/* paso a paso */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.live{display:grid;gap:16px;padding-bottom:64px}
+.livebar{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+.livectl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.livectl .seg button{min-width:48px}
+.livecfg{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-size:14.5px;color:var(--ink2)}
+.livecfg select{width:auto;min-width:260px}
+.stagewrap{border:1px solid var(--line);border-radius:24px;padding:16px 16px 12px;background:linear-gradient(var(--bg),var(--surface))}
+.stagehead{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.lv-month{font-family:var(--f-title);font-stretch:112%;font-weight:850;font-size:24px;min-width:150px}
+.lv-track{flex:1;display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:3px;min-width:220px}
+.lv-track i{height:10px;border-radius:3px;background:var(--surface2)}
+.lv-track i.done{background:var(--ink)}
+.lv-track i.cur{background:var(--hl)}
+.lv-track i.sh{box-shadow:inset 0 -3px 0 var(--shock)}
+.stage{width:100%;min-width:720px;height:auto;display:block;margin-top:6px}
+.stagescroll{overflow-x:auto}
+.live>*{min-width:0}
+.stage text{font-family:var(--f-body);fill:var(--ink)}
+.stage .nlabel{font-weight:700;font-size:15px}
+.stage .nbadge{font-family:var(--f-mono);font-size:12.5px;fill:var(--muted)}
+.stage .edge{stroke:var(--line);stroke-width:3;stroke-linecap:round}
+.stage .edge.on{stroke:var(--ink);stroke-opacity:.35}
+.stage .props text{font-size:13.5px}
+.stage .props .v{font-family:var(--f-mono);font-size:13.5px}
+.caption{min-height:52px;margin-top:6px;padding:10px 14px;border-radius:14px;background:var(--bg);font-size:15.5px}
+.livegrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:16px}
+@media (max-width:900px){.livegrid{grid-template-columns:minmax(0,1fr)}}
+.sumgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.sumgrid .stat b{font-size:22px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-</style>
-
-<style id="tema-libreta">
-/* Tema 'La libreta del hogar': fondo blanco, Archivo expandida para títulos, Public Sans para texto, DM Mono para cifras.
-   Color vivo solo donde se mueve el dinero: verde ingreso, azul colchón, naranja golpe, magenta deuda; amarillo solo como destacador. */
-:root{--bg:#FFFFFF; --surface:#F5F7F6; --ink:#172026; --muted:#5E6A71; --line:#E1E6E9; --grid:#ECEFF1; --mark:rgba(255,210,63,1); --text-shock:#C2410C; --text-ok:#0B7A3B;--buffer:#2F6BFF; --buffer-soft:#E8EFFF; --shock:#FF5A1F; --shock-soft:#FFEDE5; --debt:#C81D6B; --debt-soft:#FBE8F0; --family:#6E44D9; --family-soft:#EFEAFD; --public:#A12BB0; --public-soft:#F6E6F8;--display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"DM Mono",ui-monospace,Menlo,Consolas,monospace;}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#101418; --surface:#182026; --ink:#E8ECEE; --muted:#9AA6AD; --line:#2A343B; --grid:#222B31; --mark:rgba(255,210,63,.38); --text-shock:#FF8A5B; --text-ok:#4FD68C;--buffer:#6E97FF; --buffer-soft:#18264A; --shock:#FF7A45; --shock-soft:#3D2016; --debt:#F0559A; --debt-soft:#3A1627; --family:#A58BF5; --family-soft:#272044; --public:#D46AE0; --public-soft:#33193A; color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#101418; --surface:#182026; --ink:#E8ECEE; --muted:#9AA6AD; --line:#2A343B; --grid:#222B31; --mark:rgba(255,210,63,.38); --text-shock:#FF8A5B; --text-ok:#4FD68C;--buffer:#6E97FF; --buffer-soft:#18264A; --shock:#FF7A45; --shock-soft:#3D2016; --debt:#F0559A; --debt-soft:#3A1627; --family:#A58BF5; --family-soft:#272044; --public:#D46AE0; --public-soft:#33193A; color-scheme:dark}
-
-*{font-synthesis-weight:none}
-body{background:var(--bg);color:var(--ink)}
-h1,h2,h3{font-family:var(--display);font-stretch:112%;font-weight:800;letter-spacing:-.005em}
-h1{font-stretch:125%;font-weight:850;letter-spacing:-.015em;line-height:1.02}
-h2{font-stretch:118%;line-height:1.05}
-.eyebrow{font-family:var(--mono);letter-spacing:.06em}
-mark,.hl{background:linear-gradient(transparent 58%,var(--mark) 58%);color:inherit;padding:0 .05em}
-.badge{border-style:solid;background:var(--surface);border-color:transparent}
-.ico{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;background:currentColor;-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat}
-.brandmark{display:inline-flex;align-items:center;gap:8px}
-.brandmark::before{content:"";width:22px;height:22px;background:var(--ink);-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3%2011l9-7%209%207%22/%3E%3Cpath%20d%3D%22M5.5%209.5V20h13V9.5%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2214.5%22%20r%3D%223%22/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3%2011l9-7%209%207%22/%3E%3Cpath%20d%3D%22M5.5%209.5V20h13V9.5%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2214.5%22%20r%3D%223%22/%3E%3C/svg%3E") center/contain no-repeat;flex:none}
-
-/* Composición: portada centrada; luego secciones que alternan izquierda, centro, derecha y dos columnas. */
-nav.top{background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px)}
-nav.top .brand{font-family:var(--display);font-stretch:125%;font-weight:800;font-size:.95rem;letter-spacing:0;text-transform:none;color:var(--ink)}
-.hero{text-align:center;padding-block:84px 24px;max-width:900px}
-.hero .lede{margin-inline:auto}
-.hero h1{font-size:clamp(2.6rem,7.5vw,4.6rem)}
-.hero h1 em{font-style:normal;font-weight:inherit;color:inherit;background:linear-gradient(transparent 60%,var(--mark) 60%)}
-.thesis{text-align:left;max-width:860px;margin-inline:auto}
-.thesis div{border-top:none;background:var(--surface);border-radius:14px;padding:16px 18px}
-.thesis b{font-family:var(--display);font-stretch:112%;font-weight:800}
-.thesis div:nth-child(1) b{color:var(--text-shock)} .thesis div:nth-child(2) b{color:var(--buffer)} .thesis div:nth-child(3) b{color:var(--family)}
-.panel,.layer,details.mech,.ev,.route,.tablewrap{border-color:transparent}
-.panel{background:var(--surface);border-radius:16px}
-.chipbtn{background:var(--bg);border-color:var(--line)}
-.group-title i{width:16px;height:16px;border-radius:0;background:currentColor!important;-webkit-mask:var(--gi) center/contain no-repeat;mask:var(--gi) center/contain no-repeat}
-.g-exp{--gi:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M13%202L4.5%2013.5H11L10%2022l8.5-11.5H12z%22/%3E%3C/svg%3E")} .g-buf{--gi:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M4%2012.5c0-3.3%203.1-5.5%207.5-5.5s7.5%202.2%207.5%205.5-3.1%205.5-7.5%205.5S4%2015.8%204%2012.5z%22/%3E%3Cpath%20d%3D%22M19%2011.5h2v3h-2M9.5%207.3l.5-2.3M10%204.5h3M7.5%2017.5V20M15.5%2017.5V20%22/%3E%3C/svg%3E")} .g-int{--gi:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%226%22%20cy%3D%227%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%227%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2218%22%20r%3D%222.5%22/%3E%3Cpath%20d%3D%22M8.5%207h7M7.3%209.2l3.4%206.6M16.7%209.2l-3.4%206.6%22%20stroke-dasharray%3D%222%202.5%22/%3E%3C/svg%3E")}
-.g-exp .group-title,.l-a .tag{color:var(--text-shock)}
-.shockbar button{border-color:var(--shock);color:var(--text-shock);border-width:1.5px}
-.shockbar button:hover{background:var(--shock-soft)}
-.status,.outcome strong,.mtitle,.formula,.ev .fig,.thesis b{font-family:var(--display)}
-.ev .fig{font-stretch:118%;font-weight:800;color:var(--ink)}
-.gauge{background:linear-gradient(90deg,var(--buffer),var(--family),var(--debt),var(--shock))}
-/* simulador: título a la izquierda (por defecto) */
-#idea{text-align:center} #idea .formula{justify-content:center} #idea .lede{margin-inline:auto;max-width:60ch}
-#capas > .col{margin-left:auto!important;margin-right:0;text-align:right} #capas > .col .lede{margin-left:auto}
-.layer{background:var(--surface)} .layer+.layer{border-left:2px solid var(--bg)}
-@media (min-width:980px){
-  #mecanismos{max-width:1080px;display:grid;grid-template-columns:300px minmax(0,1fr);column-gap:56px;align-items:start}
-  #mecanismos > .eyebrow,#mecanismos > h2,#mecanismos > .lede{grid-column:1}
-  #mecanismos > h2{font-size:2.4rem}
-  #mecanismos > .mechs{grid-column:2;grid-row:1 / span 4;margin-top:0}
-}
-#emergencia{text-align:center} #emergencia .lede{margin-inline:auto} #emergencia .ladder{text-align:left} #emergencia h2{font-size:clamp(1.8rem,4.6vw,2.7rem)}
-.rung div{border-left-width:8px;background:var(--surface);border-color:transparent;border-left-color:var(--c)}
-#evidencia .evidence{gap:12px} .ev{background:var(--surface);border-radius:16px}
-.ev.cl .where{border-color:var(--buffer);color:var(--buffer)}
-#medir > .col{margin-left:auto!important;margin-right:0;text-align:right} #medir > .col .lede{margin-left:auto}
-.tablewrap{background:var(--surface);border-radius:16px}
-#agenda{text-align:center} #agenda .agenda{text-align:left;max-width:600px;margin-inline:auto}
-.route{background:var(--surface);border-radius:16px}
-#leer > .col h2{font-size:clamp(2rem,5vw,3rem)}
 </style>
 </head>
 <body>
 
-<nav class="top" aria-label="Secciones">
-  <div class="wide">
-    <span class="brand brandmark">Economic Security Lab</span>
-    <a href="#simulador">Arma un hogar</a>
-    <a href="#idea">La idea</a>
-    <a href="#capas">Tres capas</a>
-    <a href="#mecanismos">Mecanismos</a>
-    <a href="#evidencia">Evidencia</a>
-    <a href="#medir">Cómo se mide</a>
-    <a href="#leer">Para leer</a>
-    <a href="laboratorio_hogares.html">Laboratorio</a>
-  </div>
-</nav>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#inicio" data-go="inicio"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5.5 9.5V20h13V9.5"/><circle cx="12" cy="14.5" r="3" stroke="var(--inc)"/></svg><span data-i18n="brand"></span></a>
+  <nav class="nav" aria-label="Principal">
+    <a href="#aprender" data-nav="aprender" data-i18n="navLearn"></a>
+    <a href="#laboratorio" data-nav="laboratorio" data-i18n="navLab"></a>
+    <button class="lang" id="lang" type="button" aria-label="Cambiar idioma / Change language"><span data-l="es">ES</span><span data-l="en">EN</span></button>
+  </nav>
+</div></header>
 
-<header class="hero col">
-  <div class="eyebrow">Inseguridad económica, explicada</div>
-  <h1>¿Qué puede sostener un hogar <em>cuando algo falla?</em></h1>
-  <p class="lede">Un hogar puede no ser pobre y aun así vivir al borde. Puede tener ingresos medios pero ningún ahorro, tener casa pero estar sobreendeudado, o tener estudios en un mercado laboral que no promete estabilidad. La inseguridad económica mira esa fragilidad, que el ingreso del mes no muestra.</p>
-  <div class="thesis">
-    <div><b>Exposición</b>Los riesgos y pagos que el hogar enfrenta: despidos, enfermedades, deudas, arriendo.</div>
-    <div><b>Colchones</b>Lo que permite amortiguar el golpe: ahorro, familia, seguros, protección social.</div>
-    <div><b>Experiencia</b>Cómo se vive y se anticipa el riesgo: preocupación, planes, expectativas.</div>
+<main>
+<!-- INICIO -->
+<section id="v-inicio" class="wrap home">
+  <h1 data-i18n-html="homeTitle"></h1>
+  <p class="lead" data-i18n="homeLead"></p>
+  <div class="doors">
+    <a class="door" href="#aprender">
+      <div class="icons" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2 2 0 0 1 6 4h13v14H6a2 2 0 0 0-2 2z"/><path d="M4 20V5.5"/><path d="M9 8h6M9 11h4"/></svg></div>
+      <h2 data-i18n="door1"></h2>
+      <p class="door-sub" data-i18n="door1Sub"></p>
+      <span class="go"><span data-i18n="door1Go"></span> →</span>
+    </a>
+    <a class="door lab" href="#laboratorio">
+      <div class="icons" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9 16l2-2 2 1.5 3-3.5" stroke="var(--hl)"/></svg></div>
+      <h2 data-i18n="door2"></h2>
+      <p class="door-sub" data-i18n="door2Sub"></p>
+      <span class="go"><span data-i18n="door2Go"></span> →</span>
+    </a>
   </div>
-</header>
+  <p class="note" data-i18n="homeNote"></p>
+</section>
 
-<section id="simulador" class="wide">
-  <div class="col" style="margin-inline:0;max-width:680px">
-    <div class="eyebrow">Arma un hogar</div>
-    <h2>Suma riesgos y colchones. Después, lanza un golpe.</h2>
-    <p class="lede">Cada riesgo presiona el techo y cada colchón levanta la casa. Al combinarlos se encienden los mecanismos que estudia el Lab, y el panel de lecturas sugiere los textos que mejor explican lo que armaste.</p>
+<!-- APRENDER -->
+<div id="v-aprender" class="wrap learn" hidden></div>
+
+<!-- LABORATORIO -->
+<section id="v-laboratorio" class="wrap" hidden>
+  <div class="labhead">
+    <div><h2 data-i18n="labTitle"></h2><p id="labIntro"></p></div>
+    <nav class="modes" aria-label="Modo"><a href="#laboratorio/arma" data-mode="arma" data-i18n="modeBuild"></a><a href="#laboratorio/tiempo" data-mode="tiempo" data-i18n="modeTime"></a><a href="#laboratorio/vivo" data-mode="vivo" data-i18n="modeLive"></a></nav>
   </div>
 
-  <div class="builder">
-    <aside class="panel" aria-label="Componentes del hogar">
-      <div class="group">
-        <span class="group-title">Empezar desde</span>
-        <div class="presets" id="presets">
-          <button type="button" data-preset="rojas">Hogar endeudado</button>
-          <button type="button" data-preset="estudiante">Estudiante que trabaja</button>
-          <button type="button" data-preset="vidal">Hogar con respaldo</button>
-          <button type="button" data-preset="vacio">Vacío</button>
+  <!-- ARMA UN HOGAR -->
+  <div id="m-arma" class="build">
+    <div class="steps">
+      <div class="step" id="st1">
+        <div class="step-h"><span class="step-n">1</span><div><h3 data-i18n="s1T"></h3><p data-i18n="s1P"></p></div></div>
+        <span class="sublabel" data-i18n="s1Inc"></span>
+        <div class="opts" id="o-inc"></div>
+        <span class="sublabel" data-i18n="s1Load"></span>
+        <div class="opts" id="o-load"></div>
+        <div class="step-foot"><span class="hint" id="h1"></span><button class="btn solid" id="next1" type="button" data-i18n="next"></button></div>
+      </div>
+      <div class="step locked" id="st2">
+        <div class="step-h"><span class="step-n">2</span><div><h3 data-i18n="s2T"></h3><p data-i18n="s2P"></p></div></div>
+        <div class="opts" id="o-buf"></div>
+        <div class="step-foot"><span class="hint" data-i18n="s2Hint"></span><button class="btn solid" id="next2" type="button" data-i18n="next"></button></div>
+      </div>
+      <div class="step locked" id="st3">
+        <div class="step-h"><span class="step-n">3</span><div><h3 data-i18n="s3T"></h3><p data-i18n="s3P"></p></div></div>
+        <div class="shocks" id="o-shock"></div>
+        <div class="step-foot"><span class="hint" data-i18n="s3Hint"></span><button class="btn" id="clearShock" type="button" data-i18n="clearShock"></button></div>
+      </div>
+      <div class="step-foot"><button class="btn" id="resetBuild" type="button" data-i18n="reset"></button><span class="disclaimer" data-i18n="buildDisc"></span></div>
+    </div>
+
+    <div class="panel">
+      <div class="card" aria-live="polite">
+        <div class="strength-top"><h3 data-i18n="strength"></h3><span class="strength-val" id="sv">—</span></div>
+        <div class="sbar"><i id="sbar"></i></div>
+        <div class="sscale"><span data-i18n="fragile"></span><span data-i18n="solid"></span></div>
+        <div class="parts">
+          <div class="part i"><b id="p-i">0</b><span data-i18n="partInc"></span></div>
+          <div class="part c"><b id="p-c">0</b><span data-i18n="partBuf"></span></div>
+          <div class="part l"><b id="p-l">0</b><span data-i18n="partLoad"></span></div>
         </div>
+        <div class="chips" id="chips"></div>
       </div>
-      <div class="group g-exp" id="g-exp"><span class="group-title"><i></i>Riesgos y obligaciones</span></div>
-      <div class="group g-buf" id="g-buf"><span class="group-title"><i></i>Colchones</span></div>
-      <div class="group g-int" id="g-int"><span class="group-title"><i></i>Cómo se vive</span></div>
-    </aside>
-
-    <div class="panel stagecard">
-      <svg class="stage" id="stage" viewBox="0 0 560 470" role="img" aria-labelledby="stage-desc"><desc id="stage-desc">Dibujo de una casa: los riesgos activos presionan el techo y los colchones activos forman capas bajo la casa.</desc></svg>
-      <div class="gauge-row">
-        <span class="hint">Seguro</span>
-        <div class="gauge" aria-hidden="true"><b id="needle"></b></div>
-        <span class="hint">Muy inseguro</span>
-      </div>
-      <p><span class="status" id="status"></span> <span class="hint" id="status-text"></span></p>
-      <div class="shockbar">
-        <span class="hint">Lanzar un golpe:</span>
-        <button type="button" data-shock="job">Despido</button>
-        <button type="button" data-shock="health">Enfermedad</button>
-        <button type="button" data-shock="drop">Caída de ingresos</button>
-        <button type="button" class="ghost" id="reset-shock" hidden>Reparar la casa</button>
-      </div>
-      <div class="outcome" id="outcome" hidden></div>
-      <div>
-        <span class="label">Mecanismos en juego</span>
-        <div class="mechtags" id="mechtags"></div>
-      </div>
-      <div class="mechinfo" id="mechinfo" hidden></div>
-    </div>
-
-    <aside class="panel" aria-label="Lecturas sugeridas" aria-live="polite">
-      <h3>Lecturas para este hogar</h3>
-      <label class="toggle-cl"><input type="checkbox" id="prefer-cl"> Priorizar evidencia de Chile y América Latina</label>
-      <ol class="paperlist" id="papers"></ol>
-      <p class="hint">Las sugerencias cambian con lo que activas, los golpes que lanzas y los mecanismos que abres.</p>
-    </aside>
-  </div>
-  <p class="disclaimer">Modelo didáctico: los pesos de cada riesgo y colchón son ilustrativos y sirven para mostrar la lógica del fenómeno, no para medir un hogar real.</p>
-  <p style="margin-top:18px;font-family:var(--display);font-size:1.2rem">¿Quieres ver mes a mes qué hace un hogar con su presupuesto, y cómo cambia entre vecinos? <a href="laboratorio_hogares.html">Abre el laboratorio de hogares</a>.</p>
-</section>
-
-<section id="idea" class="col">
-  <div class="eyebrow">La idea en una línea</div>
-  <h2>La inseguridad aparece cuando los riesgos superan los colchones</h2>
-  <p class="lede">El Lab define la seguridad económica como la capacidad de sostener la vida cotidiana y proyectar el futuro frente a golpes, obligaciones y transiciones.</p>
-  <div class="formula" aria-label="Inseguridad económica igual a exposición a golpes y obligaciones, menos colchones disponibles, más interpretación del riesgo">
-    <span class="term t-exp">exposición a golpes y obligaciones</span>
-    <span class="op">−</span>
-    <span class="term t-buf">colchones disponibles</span>
-    <span class="op">+</span>
-    <span class="term t-int">cómo se interpreta el riesgo</span>
-    <span class="op">=</span>
-    <span class="result">inseguridad económica</span>
-  </div>
-  <p class="fineprint">No es una ecuación para calcular: es un mapa para ordenar lo que sabemos. El tercer término importa porque dos personas en la misma situación material pueden vivirla de forma muy distinta según su historia, su clase y las instituciones que las rodean.</p>
-</section>
-
-<section id="capas" class="wide">
-  <div class="col" style="margin-inline:0">
-    <div class="eyebrow">Tres capas</div>
-    <h2>Del riesgo a sus consecuencias</h2>
-    <p class="lede">El mismo riesgo produce resultados distintos según lo que haya en el medio. Por eso el Lab ordena el fenómeno en tres capas.</p>
-  </div>
-  <div class="layers">
-    <div class="layer l-a">
-      <span class="tag">Capa A · Exposición</span>
-      <h3>¿Dónde aparece el riesgo?</h3>
-      <p class="q">Lo que puede fallar o ya está comprometido.</p>
-      <ul><li>Ingreso bajo o variable</li><li>Desempleo, informalidad</li><li>Deudas y pagos rígidos</li><li>Gastos de vivienda, salud, educación, cuidados</li><li>Golpes familiares o laborales</li></ul>
-    </div>
-    <div class="layer l-b">
-      <span class="tag">Capa B · Colchones</span>
-      <h3>¿Qué amortigua el golpe?</h3>
-      <p class="q">Por qué el mismo riesgo pega distinto.</p>
-      <ul><li>Ahorro y liquidez</li><li>Patrimonio y vivienda</li><li>Apoyo y transferencias familiares</li><li>Crédito y seguros</li><li>Beneficios sociales y empleo protegido</li></ul>
-    </div>
-    <div class="layer l-c">
-      <span class="tag">Capa C · Resultados</span>
-      <h3>¿En qué se convierte?</h3>
-      <p class="q">Lo que queda después del golpe.</p>
-      <ul><li>Estrés financiero y salud mental</li><li>Estudios interrumpidos o postergados</li><li>Deuda defensiva</li><li>Movilidad descendente</li><li>Confianza, protesta o retraimiento</li></ul>
+      <div class="card impact" id="impact"></div>
     </div>
   </div>
-  <div class="path">
-    <div class="chain" aria-label="Ejemplo de camino"><span>Ingreso variable</span><b>→</b><span>poca liquidez</span><b>→</b><span>deuda o ayuda familiar</span><b>→</b><span>estrés financiero</span><b>→</b><span>deterioro de salud o estudios postergados</span></div>
-    <div class="chain" aria-label="Ejemplo de camino"><span>Estudios caros</span><b>→</b><span>familia que puede pagar</span><b>→</b><span>menos deuda y menos trabajo paralelo</span><b>→</b><span>termina la carrera</span><b>→</b><span>ventaja acumulada</span></div>
-  </div>
-</section>
 
-<section id="mecanismos" class="col">
-  <div class="eyebrow">Ocho mecanismos</div>
-  <h2>Cómo se produce la inseguridad</h2>
-  <p class="lede">Cada mecanismo es una secuencia que la literatura documenta. Abre uno para ver el camino, la idea central y dónde leer más.</p>
-  <div class="mechs">
-    <details class="mech" open>
-      <summary><span class="mnum">M1</span><span class="mtitle">Golpe sin colchón<small>Lo decisivo no es que ocurra el golpe, sino si hay cómo absorberlo.</small></span><span class="plus">+</span></summary>
-      <div class="mbody">
-        <div class="chain"><span>golpe</span><b>→</b><span>falta de liquidez o protección</span><b>→</b><span>deterioro material</span><b>→</b><span>estrés</span><b>→</b><span>cambio de trayectoria</span></div>
-        <p>Una enfermedad o un despido no tienen el mismo efecto en todos los hogares. La diferencia la ponen el ahorro, la familia, el crédito, los seguros y la política social.</p>
-        <p class="reads">Leer: Hacker et al. 2014 · Espinosa, Friedman y Yévenes 2014 · Bania y Leete 2022</p>
+  <!-- EN EL TIEMPO -->
+  <div id="m-tiempo" class="simgrid" hidden>
+    <div class="controls">
+      <div class="box"><h4 data-i18n="pickHH"></h4><div class="presets" id="presets"></div></div>
+      <div class="box">
+        <h4 data-i18n="adjust"></h4>
+        <div class="field"><label for="f-inc"><span data-i18n="fInc"></span><output id="o-f-inc"></output></label><input type="range" id="f-inc" min="250" max="4000" step="10"></div>
+        <div class="field"><label for="f-exp"><span data-i18n="fExp"></span><output id="o-f-exp"></output></label><input type="range" id="f-exp" min="200" max="3500" step="10"></div>
+        <div class="field"><label for="f-debt"><span data-i18n="fDebt"></span><output id="o-f-debt"></output></label><input type="range" id="f-debt" min="0" max="900" step="10"></div>
+        <div class="field"><label for="f-sav"><span data-i18n="fSav"></span><output id="o-f-sav"></output></label><input type="range" id="f-sav" min="0" max="5000" step="50"></div>
+        <div class="field"><span class="lbl" data-i18n="fJob"></span><div class="seg" id="f-formal"></div></div>
+        <div class="field"><span class="lbl" data-i18n="fNet"></span><div class="seg" id="f-net"></div></div>
+        <div class="field"><span class="lbl" data-i18n="fCard"></span><div class="seg" id="f-card"></div></div>
       </div>
-    </details>
-    <details class="mech">
-      <summary><span class="mnum">M2</span><span class="mtitle">La deuda como colchón y como carga<small>Sostiene en el corto plazo y puede debilitar en el mediano.</small></span><span class="plus">+</span></summary>
-      <div class="mbody">
-        <div class="chain"><span>necesidad o proyecto</span><b>→</b><span>crédito</span><b>→</b><span>continuidad</span><b>→</b><span>obligación futura</span><b>→</b><span>restricción o crisis</span></div>
-        <p>La deuda no es buena ni mala en sí misma. Importan su tipo, plazo, acreedor y cuánto pesa la cuota mensual. En Chile, el crédito de consumo está mucho más extendido entre grupos de ingreso que el hipotecario.</p>
-        <p class="reads">Leer: Dwyer 2018 · Ruiz-Tagle y Vella 2016 · Lea, Webley y Levine 1993</p>
+      <div class="box">
+        <h4 data-i18n="shocksT"></h4>
+        <div class="field"><span class="lbl" data-i18n="shock1"></span><div class="shockrow"><select id="sh1t" aria-label="tipo"></select><select id="sh1m" aria-label="mes"></select><select id="sh1d" aria-label="duración"></select></div></div>
+        <div class="field"><span class="lbl" data-i18n="shock2"></span><div class="shockrow"><select id="sh2t" aria-label="tipo"></select><select id="sh2m" aria-label="mes"></select><select id="sh2d" aria-label="duración"></select></div></div>
+        <button class="btn" id="reroll" type="button" data-i18n="reroll"></button>
       </div>
-    </details>
-    <details class="mech">
-      <summary><span class="mnum">M3</span><span class="mtitle">La riqueza como protección invisible<small>Protege incluso cuando no se gasta.</small></span><span class="plus">+</span></summary>
-      <div class="mbody">
-        <div class="chain"><span>activos y patrimonio</span><b>→</b><span>capacidad de absorber</span><b>→</b><span>continuidad</span><b>→</b><span>ventaja acumulada</span></div>
-        <p>El patrimonio funciona como seguro privado, respaldo familiar y libertad para tomar riesgos. Parte de lo que parece autonomía individual descansa en recursos de la familia.</p>
-        <p class="reads">Leer: Killewald, Pfeffer y Schachner 2017 · Jeffrey, Smith y Hamilton 2026 · Rauscher 2016</p>
-      </div>
-    </details>
-    <details class="mech">
-      <summary><span class="mnum">M4</span><span class="mtitle">Mezclas de bienestar<small>La seguridad viene de varias fuentes combinadas.</small></span><span class="plus">+</span></summary>
-      <div class="mbody">
-        <div class="chain"><span>familia</span><b>+</b><span>Estado</span><b>+</b><span>mercado</span><b>+</b><span>deuda</span><b>+</b><span>comunidad</span><b>→</b><span>seguridad efectiva</span></div>
-        <p>Un mismo trabajo precario puede volverse precariedad vital o no según el apoyo familiar y estatal disponible. En Suecia, un mayor apoyo estatal impide que muchos trabajos precarios de estudiantes se conviertan en inseguridad.</p>
-        <p class="reads">Leer: Antonucci 2018</p>
-      </div>
-    </details>
-    <details class="mech">
-      <summary><span class="mnum">M5</span><span class="mtitle">De lo objetivo a lo vivido<small>Ni toda vulnerabilidad se siente igual, ni toda angustia se explica por los números.</small></span><span class="plus">+</span></summary>
-      <div class="mbody">
-        <div class="chain"><span>condición material</span><b>→</b><span>mediaciones</span><b>→</b><span>interpretación</span><b>→</b><span>experiencia subjetiva</span></div>
-        <p>Entre la situación material y la preocupación median expectativas, comparaciones, memoria de crisis, clase social e instituciones. En Europa, los países con más gasto social muestran menos inseguridad percibida.</p>
-        <p class="reads">Leer: Mau, Mewes y Schoeneck 2012 · Ayala-Hurtado 2026</p>
-      </div>
-    </details>
-    <details class="mech">
-      <summary><span class="mnum">M6</span><span class="mtitle">El tiempo de la amenaza<small>La inseguridad opera en calendarios y en futuros imaginados.</small></span><span class="plus">+</span></summary>
-      <div class="mbody">
-        <div class="chain"><span>crisis pasadas</span><b>+</b><span>presente incierto</span><b>+</b><span>futuro no garantizado</span><b>→</b><span>inseguridad anticipada</span></div>
-        <p>Cuotas, contratos, matrículas y renovaciones de beneficios marcan el ritmo de la inseguridad. Quien vivió caídas repetidas anticipa la siguiente y posterga decisiones.</p>
-        <p class="reads">Leer: Hill et al. 2017 · Bossert y D'Ambrosio 2013 · Ayala-Hurtado 2022</p>
-      </div>
-    </details>
-    <details class="mech">
-      <summary><span class="mnum">M7</span><span class="mtitle">Trayectorias bajo restricción<small>La inseguridad cambia decisiones de estudio, trabajo y familia.</small></span><span class="plus">+</span></summary>
-      <div class="mbody">
-        <div class="chain"><span>poco colchón</span><b>+</b><span>costos altos</span><b>+</b><span>incertidumbre</span><b>→</b><span>decisión restringida</span><b>→</b><span>trayectoria desigual</span></div>
-        <p>Estudiar mientras se trabaja, endeudarse para la carrera, elegir la institución más barata o postergar tener hijos son decisiones que la inseguridad empuja y que se acumulan en el tiempo.</p>
-        <p class="reads">Leer: Jeffrey, Smith y Hamilton 2026 · Chesters 2019 · Antonucci 2018</p>
-      </div>
-    </details>
-    <details class="mech">
-      <summary><span class="mnum">M8</span><span class="mtitle">Traducción política<small>La inseguridad puede volverse solidaridad, protesta o retraimiento.</small></span><span class="plus">+</span></summary>
-      <div class="mbody">
-        <div class="chain"><span>experiencia de inseguridad</span><b>→</b><span>interpretación moral y política</span><b>→</b><span>respuesta social</span></div>
-        <p>Según narrativas e instituciones, la inseguridad se traduce en demanda de protección, desconfianza, competencia entre grupos o acción colectiva. Es la zona menos estudiada del mapa.</p>
-        <p class="reads">Leer: Bardhan 2022 · Mau, Mewes y Schoeneck 2012</p>
-      </div>
-    </details>
-  </div>
-</section>
+    </div>
 
-<section id="emergencia" class="col">
-  <div class="eyebrow">Ante una emergencia</div>
-  <h2>La pregunta más simple: ¿puedes reunir dinero rápido?</h2>
-  <p class="lede">Lusardi, Schneider y Tufano preguntaron si los hogares podían juntar USD 2.000 en 30 días. Las respuestas muestran una escalera de estrategias: quien no tiene los primeros peldaños baja a opciones más caras.</p>
-  <div class="ladder" role="list">
-    <div class="rung" role="listitem"><div style="--c:var(--buffer)"><span>Ahorro propio</span><small>el colchón más directo</small></div></div>
-    <div class="rung" role="listitem" style="margin-left:4%"><div style="--c:var(--family)"><span>Familia y amigos</span><small>depende de la red</small></div></div>
-    <div class="rung" role="listitem" style="margin-left:8%"><div style="--c:var(--public)"><span>Crédito formal</span><small>banco, tarjeta</small></div></div>
-    <div class="rung" role="listitem" style="margin-left:12%"><div style="--c:var(--debt)"><span>Crédito alternativo</span><small>casas comerciales, prestamistas</small></div></div>
-    <div class="rung" role="listitem" style="margin-left:16%"><div style="--c:var(--shock)"><span>Vender o empeñar bienes</span><small></small></div></div>
-    <div class="rung" role="listitem" style="margin-left:20%"><div style="--c:var(--shock)"><span>Trabajar más horas o un segundo empleo</span><small></small></div></div>
+    <div class="outs">
+      <div class="budget" id="budget"></div>
+      <div class="chartbox">
+        <h3 data-i18n="chart1T"></h3>
+        <p class="sub" data-i18n="chart1S"></p>
+        <svg class="chart" id="chart1" viewBox="0 0 960 330" role="img"></svg>
+        <div class="legend" id="leg1"></div>
+      </div>
+      <div class="chartbox">
+        <h3 id="mdT"></h3>
+        <div class="monthdet" id="mdet" style="margin-top:12px"></div>
+      </div>
+      <div class="chartbox">
+        <h3 data-i18n="chart2T"></h3>
+        <p class="sub" data-i18n="chart2S"></p>
+        <svg class="chart" id="chart2" viewBox="0 0 960 250" role="img"></svg>
+        <div class="legend" id="leg2"></div>
+      </div>
+      <div class="chartbox">
+        <h3 data-i18n="storyT"></h3>
+        <p class="sub" data-i18n="storyS"></p>
+        <div class="story" id="story" style="margin-top:10px"></div>
+      </div>
+      <div class="chartbox">
+        <h3 data-i18n="mcT"></h3>
+        <p class="sub" data-i18n="mcS"></p>
+        <div class="stats" id="stats" style="margin-top:12px"></div>
+      </div>
+      <details class="chartbox"><summary style="cursor:pointer;font-weight:700" data-i18n="assumpT"></summary><div class="tbl" style="margin-top:12px"><table class="assump" id="assump"></table></div></details>
+    </div>
   </div>
-  <div class="ladder-axis"><span>menor costo</span><span>mayor costo</span></div>
-  <p class="fineprint">En Estados Unidos, cerca de uno de cada cuatro declaró que ciertamente no podría reunir ese monto, y casi la mitad sumando a quienes probablemente no podrían. La fragilidad también apareció en hogares de ingresos medios.</p>
-</section>
 
-<section id="evidencia" class="wide">
-  <div class="col" style="margin-inline:0">
-    <div class="eyebrow">Lo que muestra la evidencia</div>
-    <h2>Algunos hallazgos clave</h2>
-    <p class="lede">Una selección de resultados de la bibliografía base del Lab. Las tarjetas marcadas como Chile usan datos chilenos.</p>
-  </div>
-  <div class="evidence">
-    <article class="ev cl"><span class="where">Chile</span><div class="fig">≈ 1 de 2</div><p>hogares urbanos acumulaba dos o más vulnerabilidades económicas entre 2007 y 2017: golpes inesperados, empleo no protegido, sobreendeudamiento o pobreza de activos. La falta de activos es lo que más pesa.</p><span class="src">Prieto 2022 · Encuesta Financiera de Hogares</span></article>
-    <article class="ev cl"><span class="where">Chile</span><div class="fig">USD 9,9 y 20</div><p>por persona al día (PPP 2011) son las dos líneas que separan vulnerabilidad alta, moderada y baja entre los no pobres. Con una sola línea se subestima a quienes están en riesgo y se sobreestima la clase media.</p><span class="src">Prieto 2024 · Panel CASEN 2006–2009</span></article>
-    <article class="ev cl"><span class="where">Chile y México</span><div class="fig">Factor nº 1</div><p>para explicar expectativas negativas sobre el futuro: haber sufrido golpes adversos recientemente. Le siguen la edad y la salud.</p><span class="src">Espinosa, Friedman y Yévenes 2014 · CASEN Panel 2006</span></article>
-    <article class="ev cl"><span class="where">Chile</span><div class="fig">Consumo &gt; hipoteca</div><p>El crédito de consumo atraviesa todos los grupos de ingreso; el hipotecario se concentra en hogares de ingresos medios-altos. El retail tiene un peso relevante como prestamista.</p><span class="src">Ruiz-Tagle y Vella 2016</span></article>
-    <article class="ev"><span class="where">EE.UU.</span><div class="fig">25%</div><p>es el umbral del Economic Security Index: cuenta como inseguro a quien pierde un cuarto o más de sus recursos disponibles sin riqueza líquida para cubrirlo. Esa inseguridad crece desde los años ochenta.</p><span class="src">Hacker et al. 2014</span></article>
-    <article class="ev"><span class="where">EE.UU.</span><div class="fig">1,3–4,3%</div><p>más probabilidad de que empeore la salud por cada desviación estándar adicional de volatilidad mensual del ingreso, pero solo en hogares sin liquidez.</p><span class="src">Bania y Leete 2022</span></article>
-    <article class="ev"><span class="where">Europa</span><div class="fig">Ilíquido = frágil</div><p>Tener el patrimonio inmovilizado aumenta la fragilidad financiera, mientras que endeudarse no siempre la aumenta. La protección social y la confianza en el gobierno la reducen.</p><span class="src">Brunetti, Giarda y Torricelli 2025</span></article>
-    <article class="ev"><span class="where">19 países europeos</span><div class="fig">Estado de bienestar</div><p>La prosperidad y el gasto social de un país reducen la inseguridad percibida. Clase, contrato y desempleo previo la estructuran a nivel individual.</p><span class="src">Mau, Mewes y Schoeneck 2012</span></article>
-  </div>
-</section>
-
-<section id="medir" class="wide">
-  <div class="col" style="margin-inline:0">
-    <div class="eyebrow">Cómo se mide</div>
-    <h2>Cinco formas de preguntar por la inseguridad</h2>
-    <p class="lede">Cada enfoque hace una pregunta distinta. Ninguno basta solo; juntos cubren el fenómeno.</p>
-  </div>
-  <div class="tablewrap">
-    <table>
-      <thead><tr><th>Enfoque</th><th>La pregunta</th><th>Referencias</th><th>Datos típicos</th></tr></thead>
-      <tbody>
-        <tr><td>Pérdidas no amortiguadas</td><td>¿Perdió una parte grande de sus recursos sin un colchón líquido para cubrirla?</td><td>Hacker et al. 2014; Bossert y D'Ambrosio 2013</td><td>Paneles de hogares</td></tr>
-        <tr><td>Índice multidimensional</td><td>¿Cuántas vulnerabilidades acumula a la vez: golpes, empleo, deuda, activos?</td><td>Prieto 2022</td><td>Encuesta Financiera de Hogares</td></tr>
-        <tr><td>Vulnerabilidad a la pobreza</td><td>¿Qué probabilidad tiene de caer en pobreza aunque hoy no sea pobre?</td><td>López-Calva y Ortiz-Juárez 2014; Prieto 2024</td><td>Panel CASEN</td></tr>
-        <tr><td>Fragilidad financiera</td><td>¿Puede reunir dinero para una emergencia en poco tiempo?</td><td>Lusardi et al. 2011; Brunetti et al. 2025</td><td>Encuestas de hogares</td></tr>
-        <tr><td>Inseguridad subjetiva</td><td>¿Teme perder su empleo, sus ingresos o su salud? ¿Espera estar peor?</td><td>Mau et al. 2012; Espinosa et al. 2014</td><td>Encuestas de opinión y panel</td></tr>
-      </tbody>
-    </table>
+  <!-- PASO A PASO -->
+  <div id="m-vivo" class="live" hidden>
+    <div class="livebar">
+      <div class="livectl">
+        <button class="btn solid" id="lv-play" type="button"></button>
+        <button class="btn" id="lv-step" type="button" data-i18n="lvStep"></button>
+        <button class="btn" id="lv-reset" type="button" data-i18n="lvReset"></button>
+        <div class="seg" id="lv-speed" role="group" aria-label="velocidad"></div>
+      </div>
+      <div class="livecfg"><label for="lv-preset" class="sr" data-i18n="pickHH"></label><select id="lv-preset"></select><span id="lv-shocks"></span></div>
+    </div>
+    <div class="stagewrap">
+      <div class="stagehead"><span class="lv-month" id="lv-month"></span><div class="lv-track" id="lv-track"></div></div>
+      <div class="stagescroll"><svg class="stage" id="stage" viewBox="0 40 960 520" role="img"></svg></div>
+      <div class="caption" id="lv-caption" aria-live="polite"></div>
+    </div>
+    <div class="livegrid">
+      <div class="chartbox"><h3 data-i18n="lvLogT"></h3><div class="story" id="lv-log" style="margin-top:10px"></div></div>
+      <div class="chartbox" id="lv-sum"></div>
+    </div>
   </div>
 </section>
-
-<section id="agenda" class="col">
-  <div class="eyebrow">Lo que falta saber en Chile</div>
-  <h2>Preguntas abiertas</h2>
-  <ul class="agenda">
-    <li>¿Cómo afectan la deuda educativa, el CAE y la gratuidad a las trayectorias de los jóvenes?</li>
-    <li>¿Qué relación hay entre estrés financiero y salud mental con datos chilenos?</li>
-    <li>¿Cuándo la inseguridad lleva a la solidaridad, a la protesta o al retraimiento?</li>
-    <li>¿Qué perfiles o configuraciones de inseguridad existen y cómo clasificarlos?</li>
-    <li>¿Cómo se compara Chile con otros países de América Latina en vulnerabilidad y protección social?</li>
-  </ul>
-</section>
-
-<section id="leer" class="wide">
-  <div class="col" style="margin-inline:0">
-    <div class="eyebrow">Para leer</div>
-    <h2>Cuatro rutas de entrada</h2>
-    <p class="lede">No hace falta conocer el campo para empezar. Cada ruta ordena cuatro lecturas de la más accesible a la más específica.</p>
-  </div>
-  <div class="routes">
-    <div class="route"><h3>Medir la seguridad económica</h3><ol>
-      <li><a href="https://doi.org/10.1111/roiw.12053">The Economic Security Index</a><span>Hacker et al. 2014</span></li>
-      <li><a href="https://doi.org/10.1111/iere.12026">Measuring Economic Insecurity</a><span>Bossert y D'Ambrosio 2013</span></li>
-      <li><a href="https://doi.org/10.1007/s11205-022-02918-5">A Multidimensional Approach… The Case of Chile</a><span>Prieto 2022</span></li>
-      <li><a href="https://doi.org/10.1007/s10888-023-09611-8">Degrees of vulnerability to poverty… Chile</a><span>Prieto 2024</span></li>
-    </ol></div>
-    <div class="route"><h3>Entender la deuda</h3><ol>
-      <li><a href="https://doi.org/10.1146/annurev-soc-060116-053420">Credit, Debt, and Inequality</a><span>Dwyer 2018</span></li>
-      <li><a href="https://doi.org/10.1016/0167-4870(93)90041-I">The economic psychology of consumer debt</a><span>Lea, Webley y Levine 1993</span></li>
-      <li><a href="https://doi.org/10.1002/jae.2465">Borrowing Constraints and Credit Demand…</a><span>Ruiz-Tagle y Vella 2016</span></li>
-      <li><a href="https://doi.org/10.1007/s11205-024-03456-y">Financial Fragility Across Europe</a><span>Brunetti et al. 2025</span></li>
-    </ol></div>
-    <div class="route"><h3>Juventud y futuro</h3><ol>
-      <li><a href="https://doi.org/10.1080/13676261.2017.1421749">Not all experiences of precarious work lead to precarity</a><span>Antonucci 2018</span></li>
-      <li><a href="https://doi.org/10.1177/07308884211028277">Narrative Continuity/Rupture</a><span>Ayala-Hurtado 2022</span></li>
-      <li><a href="https://doi.org/10.1177/00380407261457391">Hidden Advantage along the Pipeline</a><span>Jeffrey, Smith y Hamilton 2026</span></li>
-      <li><a href="https://doi.org/10.7758/RSF.2016.2.6.09">Passing It On</a><span>Rauscher 2016</span></li>
-    </ol></div>
-    <div class="route"><h3>Subjetividad y política</h3><ol>
-      <li><a href="https://doi.org/10.1093/ser/mws001">What determines subjective socio-economic insecurity?</a><span>Mau, Mewes y Schoeneck 2012</span></li>
-      <li><a href="https://doi.org/10.1177/07308884251382499">Qualities and Configurations of Insecurity</a><span>Ayala-Hurtado 2026</span></li>
-      <li><a href="https://doi.org/10.1086/694110">Household Economic Instability and Social Policy</a><span>Hill et al. 2017</span></li>
-      <li><a href="https://doi.org/10.4159/9780674287570">A world of insecurity</a><span>Bardhan 2022</span></li>
-    </ol></div>
-  </div>
-  <footer>Economic Security Lab · Página de divulgación, versión borrador de octubre de 2026. Basada en la bibliografía núcleo del Lab (26 textos) y sus fichas de lectura.</footer>
-</section>
+</main>
+<footer class="wrap foot" data-i18n="foot"></footer>
 
 <script>
-(function(){
-  var NS = "http://www.w3.org/2000/svg";
-  var F = {
-    vol:{g:"exp",label:"Ingreso variable",w:2},
-    job:{g:"exp",label:"Empleo sin contrato",w:2},
-    debt:{g:"exp",label:"Deuda de consumo alta",w:2},
-    rent:{g:"exp",label:"Arriendo o dividendo pesado",w:1.5},
-    health:{g:"exp",label:"Problema de salud",w:2},
-    study:{g:"exp",label:"Alguien estudiando",w:1},
-    care:{g:"exp",label:"Hijos o personas a cargo",w:1},
-    sav:{g:"buf",label:"Ahorro de emergencia",w:2.5,color:"var(--buffer)",op:1},
-    ins:{g:"buf",label:"Seguro de cesantía",w:1.5,color:"var(--buffer)",op:.55},
-    fam:{g:"buf",label:"Familia que puede ayudar",w:2,color:"var(--family)",op:1},
-    wealth:{g:"buf",label:"Vivienda o patrimonio",w:1.5,color:"var(--debt)",op:.8},
-    state:{g:"buf",label:"Protección social fuerte",w:2,color:"var(--public)",op:1},
-    past:{g:"int",label:"Crisis vividas antes",w:1},
-    worry:{g:"int",label:"Preocupación por el futuro",w:1.5},
-    distrust:{g:"int",label:"Desconfianza en instituciones",w:1}
-  };
-  var ORDER = {exp:["vol","job","debt","rent","health","study","care"],buf:["sav","ins","fam","wealth","state"],int:["past","worry","distrust"]};
+/* ============ TEXTOS ============ */
+const T={
+es:{
+modeLive:"Paso a paso",labIntroLive:"El mismo hogar y los mismos golpes de «El hogar en el tiempo», mes a mes. Aprieta reproducir y mira cómo circula el dinero entre el hogar, su trabajo, la familia, el banco y la casa comercial.",
+lvPlay:"▶ Reproducir",lvPause:"❚❚ Pausa",lvResume:"▶ Seguir",lvAgain:"↺ Ver de nuevo",lvStep:"Mes siguiente",lvReset:"Reiniciar",lvShocks:"Golpes",lvChange:"cambiar",
+lvNode:{job:"Trabajo",state:"Estado y seguros",fam:"Familia y amigos",bank:"Banco",card:"Casa comercial",bills:"Cuentas del hogar"},
+lvJobOn:"trabajando",lvJobOff:"sin trabajo",lvPension:"pensión",lvGave:"ha dado",lvStateIdle:"sin uso por ahora",lvNoNet:"sin red",lvLent:"prestó",lvInst:"cuota",lvNoDebt:"sin deudas",lvNoCard:"sin tarjeta",lvAdv:"avances",lvCardIdle:"tarjeta sin usar",lvLate:"atraso",lvOk:"al día",
+lvSav:"ahorro",lvRowInc:"Entra este mes",lvRowNeed:"Gastos y cuotas",lvRowDebt:"Deuda por pagar",lvRowArr:"Cuentas atrasadas",
+lvStart:"Antes de empezar",lvMonthOf:m=>`Mes ${m} de 24`,lvQuiet:"El ingreso alcanzó.",lvEnd:"<b>Fin de los 24 meses.</b> Abajo están los resultados de esta simulación.",
+lvLogT:"Lo que fue pasando",lvLogEmpty:"Aprieta reproducir para empezar.",lvStageAria:"Animación del hogar y las entidades con las que intercambia dinero",
+lvSumT:"Resultados de esta simulación",lvSumWait:"Aparecen al terminar los 24 meses.",lvSumS:"Una sola historia posible. Abajo, cómo se compara con 400 historias del mismo hogar.",
+lvS:{def:"meses en que faltó plata",fam:"puso la familia en total",loans:"en préstamos y avances",int:"en intereses comprometidos",arr:"en cuentas atrasadas al final",hs:"meses con estrés alto"},
+lvMc:(a,c)=>`En 400 simulaciones de este mismo hogar, <b>${a}%</b> termina con cuentas atrasadas y <b>${c}%</b> recurre a un avance en efectivo.`,
+brand:"Laboratorio de Seguridad Económica",navLearn:"Aprender",navLab:"Laboratorio",
+homeTitle:"¿Qué sostiene a un hogar <span class='hl'>cuando algo falla?</span>",
+homeLead:"Un hogar puede no ser pobre y aun así vivir al borde. Aquí puedes entender por qué ocurre y ver, mes a mes, qué pasa con un presupuesto cuando llega un golpe.",
+door1:"Aprender cómo ocurre la inseguridad económica",door1Sub:"La idea central, las tres capas del fenómeno, los mecanismos que lo producen, la evidencia, cómo se mide y qué leer.",door1Go:"Empezar a leer",
+door2:"Simular la economía de un hogar en el tiempo",door2Sub:"Arma un hogar, lanza un golpe y mira cuánto duele. Después, sigue su presupuesto durante dos años con montos en pesos, o mira la simulación correr mes a mes.",door2Go:"Abrir el laboratorio",
+homeNote:"Herramienta de divulgación. Los montos y probabilidades son ilustrativos, calibrados con referencias públicas de Chile 2026.",
+labTitle:"Laboratorio",modeBuild:"Arma un hogar",modeTime:"El hogar en el tiempo",
+labIntroBuild:"Una versión simple para entender la lógica: cada condición y cada colchón cambian la fortaleza del hogar, y esa fortaleza decide cuánto duele un golpe.",
+labIntroTime:"La versión con montos: un presupuesto mensual durante 24 meses. Cuando falta plata, el hogar recurre a su ahorro, a la familia, al banco o a la tarjeta, y cada opción deja consecuencias.",
+s1T:"La base del hogar",s1P:"Primero, de qué vive y qué obligaciones tiene.",s1Inc:"Ingreso principal (elige uno)",s1Load:"Condiciones y obligaciones",
+s2T:"Los colchones",s2P:"Lo que puede amortiguar un golpe. Puedes no agregar ninguno.",s2Hint:"Los colchones suben la fortaleza.",
+s3T:"Lanza un golpe",s3P:"Elige uno o dos. La fortaleza no cambia: cambia lo que el golpe provoca.",s3Hint:"Puedes combinar dos golpes.",
+next:"Seguir",reset:"Empezar de nuevo",clearShock:"Quitar golpes",buildDisc:"Modelo didáctico: los pesos son ilustrativos.",
+pickIncome:"Elige un ingreso para empezar.",loadsN:n=>n?`${n} obligación${n>1?"es":""} agregada${n>1?"s":""}.`:"Agrega las obligaciones que tenga este hogar, o sigue sin ninguna.",
+strength:"Fortaleza del hogar",fragile:"frágil",solid:"sólido",partInc:"estabilidad del ingreso",partBuf:"colchones",partLoad:"carga de obligaciones",
+emptyHH:"El hogar está vacío. Empieza por el ingreso.",
+impactWait:"Cuando lances un golpe, aquí verás lo que provoca.",impactWaitT:"Qué provoca un golpe",
+impactT:n=>n>1?"Lo que provocan estos golpes":"Lo que provoca este golpe",
+impactIntro:"La línea punteada muestra cómo sería el mismo golpe en este hogar sin sus colchones.",impactIntroNoBuf:"Este hogar no tiene colchones: agrégale alguno y compara.",
+mObl:"Seguir al día con lo que ya debía",mOblP:v=>v>=75?"Es probable que siga pagando arriendo, cuentas y cuotas.":v>=45?"Probablemente se atrase en algo.":"Lo más probable es que deje de pagar algunas obligaciones.",
+mDebt:"Riesgo de endeudarse más",mDebtP:(v,cr,fam)=>(v<30?"Bajo. ":v<60?"Medio. ":"Alto. ")+(cr?"Si se endeuda, puede hacerlo con crédito formal.":"Sin acceso a crédito formal, la deuda llegaría por avance en efectivo, casas comerciales o prestamistas, que son más caros.")+(fam?" Parte del golpe lo absorbe la familia.":""),
+mRec:"Tiempo para recuperarse",mRecV:m=>`${m} ${m===1?"mes":"meses"}`,mRecP:"Meses hasta volver a la situación previa, si no llega otro golpe.",
+mStress:"Estrés financiero",mStressP:v=>v<35?"Preocupación acotada: el golpe se nota, pero hay de dónde sostenerse.":v<65?"Preocupación constante por llegar a fin de mes.":"Estrés alto: angustia, conflictos y decisiones de corto plazo. La evidencia lo asocia con peor salud mental.",
+ghost:"mismo golpe, sin colchones",compare:(a,b)=>`Con sus colchones, el golpe se lleva <b>${a}</b> puntos de capacidad del hogar. Sin ellos se llevaría <b>${b}</b>.`,
+INC:{formal:["Sueldo con contrato","con cotizaciones"],informal:["Trabajo sin contrato o por cuenta propia","ingreso variable"],pension:["Pensión","ingreso fijo y bajo"]},
+LOAD:{second:["Segundo ingreso en el hogar","otra persona aporta"],rent:["Paga arriendo",""],mort:["Paga dividendo",""],kids:["Hijos o dependientes",""],care:["Cuida a un familiar enfermo",""],cons:["Deudas de consumo","tarjetas, casas comerciales"],stud:["Crédito universitario",""]},
+BUF:{sav:["Ahorro para 3 meses",""],fam:["Familia que puede ayudar",""],unemp:["Seguro de cesantía","solo con contrato"],health:["Seguro de salud complementario",""],state:["Beneficios del Estado","subsidios, transferencias"],credit:["Acceso a crédito bancario",""],home:["Casa propia pagada","patrimonio"]},
+SHOCK:{job:"Despido o caída del ingreso",ill:"Enfermedad",prices:"Alza del costo de vida",repair:"Reparación urgente"},
+pickHH:"Elige un hogar",adjust:"Ajusta sus condiciones",fInc:"Ingreso mensual",fExp:"Gastos fijos del mes",fDebt:"Cuotas de deudas actuales",fSav:"Ahorro disponible",
+fJob:"Empleo principal",fNet:"Red de apoyo (familia y amigos)",fCard:"Tarjeta de casa comercial",formalY:"Con contrato",formalN:"Sin contrato",
+NET:{fuerte:"Fuerte",algo:"Algo",debil:"Débil",ninguna:"Ninguna"},yes:"Sí",no:"No",
+shocksT:"Golpes",shock1:"Primer golpe (tipo, mes, duración)",shock2:"Segundo golpe (opcional)",none:"Ninguno",monthN:m=>`Mes ${m}`,durN:d=>`${d} ${d===1?"mes":"meses"}`,
+reroll:"Otra historia posible",
+bInc:"Ingreso del mes 1",bNeed:"Gastos y cuotas del mes 1",bMargin:"Margen del mes 1",
+chart1T:"Cuánto sobra o falta cada mes",chart1S:"Sobre la línea, lo que sobró del ingreso. Bajo la línea, lo que faltó y de dónde salió para cubrirlo, de lo más barato a lo más caro. Toca una columna para ver el presupuesto de ese mes.",
+chart2T:"Lo que deja el camino",chart2S:"Ahorro que queda, deudas por pagar y cuentas atrasadas, mes a mes. Abajo, el estrés financiero estimado.",
+SRC:{own:"Ingreso propio",ins:"Seguro de cesantía",sav:"Ahorro",cut:"Recorte de gastos",fam:"Familia y amigos",bank:"Crédito bancario",card:"Avance en efectivo",arr:"Quedó sin pagar"},
+lines:{S:"Ahorro",debt:"Deuda por pagar",arr:"Cuentas atrasadas",stress:"Estrés financiero"},
+mdT:m=>`El presupuesto del mes ${m}`,mIn:"Entra",mOut:"Sale",mCover:"Cómo se cubrió",mInc:"Ingreso del trabajo o pensión",mIns:"Seguro de cesantía",mExp:"Gastos fijos",mExtra:"Gasto extra por el golpe",mInst:"Cuotas de deudas",mGap:"Hueco del mes",mSurplus:"Sobrante del mes",mNoGap:"Este mes alcanzó. El sobrante pagó atrasos o se ahorró.",
+storyT:"Una historia posible",storyS:"Lo que le pasó a este hogar en una de las simulaciones. Toca «Otra historia posible» para ver otra.",storyQuiet:"Dos años sin sobresaltos: el ingreso alcanzó todos los meses.",
+ev:{sav:a=>`Usó ${a} de su ahorro.`,cut:a=>`Recortó ${a} en gastos del hogar.`,famY:a=>`Pidió ayuda a la familia y recibió ${a}.`,famN:"Pidió ayuda a la familia, pero no pudieron.",bankY:(a,c)=>`El banco le prestó ${a}, en 12 cuotas de ${c}.`,bankN:"Pidió un crédito al banco y se lo rechazaron.",card:(a,c)=>`Sacó un avance en efectivo de ${a}, en 6 cuotas de ${c}.`,arr:a=>`Quedaron ${a} sin pagar.`,ins:a=>`Recibió ${a} del seguro de cesantía.`,shock:s=>`Llega el golpe: ${s.toLowerCase()}.`,paid:a=>`Puso al día ${a} de cuentas atrasadas.`},
+mcT:"En 400 simulaciones del mismo hogar",mcS:"La suerte cambia: a veces la familia puede ayudar y a veces no, a veces el banco aprueba y a veces no. Esto resume todas las historias.",
+st:{arr:"terminan con cuentas atrasadas",card:"usaron avance en efectivo",debt:"deuda nueva por pagar al mes 24 (mediana)",stress:"meses con estrés alto (mediana)"},
+assumpT:"Supuestos de la simulación",
+A:[["Ponerse al día","Después del golpe, el hogar recorta hasta 6% de sus gastos para pagar atrasos.","supuesto"],["Seguro de cesantía","70%, 55%, 45%, 40% y 35% del ingreso perdido, meses 1 a 5. Solo con contrato.","AFC Chile"],["Recorte de gastos","Hasta 8% de los gastos fijos","supuesto"],["Familia y amigos","Probabilidad de ayudar: 85% fuerte, 55% algo, 30% débil. Cada ayuda baja la siguiente (fatiga de la red).","supuesto"],["Monto que da la familia","Hasta $400.000, $200.000 o $90.000 por mes según la red","supuesto"],["Crédito bancario","Aprobación 70% con contrato y sin atrasos, 30% con atrasos, 20% sin contrato. Tasa 29,6% anual, 12 cuotas.","tasa corriente 2026"],["Avance en efectivo","Cupo $300.000. Tasa 41,1% anual, 6 cuotas.","tasa máxima convencional"],["Lo que sobra","Primero paga atrasos; el resto se ahorra.","supuesto"],["Estrés financiero","Índice 0–100 según hueco del mes, atrasos, peso de las cuotas y ayuda pedida. Ilustrativo, no es una medida clínica.","supuesto"]],
+assumpH:["Elemento","Cómo funciona","Fuente"],
+foot:"Laboratorio de Seguridad Económica · Gonzalo Torres · Propuesta de rediseño, octubre de 2026. Montos en pesos chilenos, ilustrativos.",
+PRESET:{madre:["Madre sola con dos hijos","Trabaja sin contrato y vive allegada."],dos:["Familia que arrienda con dos ingresos","Uno con contrato, otra por cuenta propia."],clase:["Familia de clase media con dividendo","Ambos con contrato, poco ahorro."],mayores:["Pareja de adultos mayores","Viven de pensiones bajas, sin ahorro."]}
+},
+en:{
+modeLive:"Step by step",labIntroLive:"The same household and shocks as in “The household over time”, month by month. Press play and watch money flow between the household, its job, family, the bank and the store.",
+lvPlay:"▶ Play",lvPause:"❚❚ Pause",lvResume:"▶ Resume",lvAgain:"↺ Watch again",lvStep:"Next month",lvReset:"Restart",lvShocks:"Shocks",lvChange:"change",
+lvNode:{job:"Job",state:"State and insurance",fam:"Family and friends",bank:"Bank",card:"Retail store",bills:"Household bills"},
+lvJobOn:"working",lvJobOff:"out of work",lvPension:"pension",lvGave:"has given",lvStateIdle:"not used yet",lvNoNet:"no network",lvLent:"lent",lvInst:"installment",lvNoDebt:"no debts",lvNoCard:"no card",lvAdv:"advances",lvCardIdle:"card unused",lvLate:"overdue",lvOk:"up to date",
+lvSav:"savings",lvRowInc:"Coming in this month",lvRowNeed:"Expenses and installments",lvRowDebt:"Debt owed",lvRowArr:"Overdue bills",
+lvStart:"Before starting",lvMonthOf:m=>`Month ${m} of 24`,lvQuiet:"Income was enough.",lvEnd:"<b>End of the 24 months.</b> The results of this simulation are below.",
+lvLogT:"What happened",lvLogEmpty:"Press play to start.",lvStageAria:"Animation of the household and the entities it exchanges money with",
+lvSumT:"Results of this simulation",lvSumWait:"They appear when the 24 months end.",lvSumS:"One possible story. Below, how it compares with 400 stories of the same household.",
+lvS:{def:"months when money ran short",fam:"given by family in total",loans:"in loans and advances",int:"in interest committed",arr:"in overdue bills at the end",hs:"months of high stress"},
+lvMc:(a,c)=>`Across 400 simulations of this same household, <b>${a}%</b> end with overdue bills and <b>${c}%</b> turn to a cash advance.`,
+brand:"Economic Security Lab",navLearn:"Learn",navLab:"Lab",
+homeTitle:"What holds a household together <span class='hl'>when something breaks?</span>",
+homeLead:"A household can be above the poverty line and still live on the edge. Here you can understand why that happens and watch, month by month, what a shock does to a family budget.",
+door1:"Learn how economic insecurity happens",door1Sub:"The core idea, the three layers of the problem, the mechanisms behind it, the evidence, how it is measured and what to read.",door1Go:"Start reading",
+door2:"Simulate a household's economy over time",door2Sub:"Build a household, hit it with a shock and see how much it hurts. Then follow its budget for two years in Chilean pesos, or watch the simulation run month by month.",door2Go:"Open the lab",
+homeNote:"An outreach tool. Amounts and probabilities are illustrative, calibrated with public Chilean references for 2026.",
+labTitle:"Lab",modeBuild:"Build a household",modeTime:"The household over time",
+labIntroBuild:"A simple version to grasp the logic: every condition and every cushion changes the household's strength, and that strength decides how much a shock hurts.",
+labIntroTime:"The version with amounts: a monthly budget over 24 months. When money runs short, the household turns to savings, family, the bank or a store card, and each option leaves consequences.",
+s1T:"The household's base",s1P:"First, what it lives on and what it owes.",s1Inc:"Main income (pick one)",s1Load:"Conditions and obligations",
+s2T:"Cushions",s2P:"What can absorb a shock. You may add none.",s2Hint:"Cushions raise strength.",
+s3T:"Hit it with a shock",s3P:"Pick one or two. Strength does not change: what changes is what the shock causes.",s3Hint:"You can combine two shocks.",
+next:"Continue",reset:"Start over",clearShock:"Remove shocks",buildDisc:"Teaching model: weights are illustrative.",
+pickIncome:"Pick an income to start.",loadsN:n=>n?`${n} obligation${n>1?"s":""} added.`:"Add this household's obligations, or continue without any.",
+strength:"Household strength",fragile:"fragile",solid:"solid",partInc:"income stability",partBuf:"cushions",partLoad:"burden of obligations",
+emptyHH:"The household is empty. Start with income.",
+impactWait:"When you launch a shock, you will see what it causes here.",impactWaitT:"What a shock causes",
+impactT:n=>n>1?"What these shocks cause":"What this shock causes",
+impactIntro:"The dashed line shows the same shock in this household without its cushions.",impactIntroNoBuf:"This household has no cushions: add one and compare.",
+mObl:"Keeping up with existing obligations",mOblP:v=>v>=75?"It will likely keep paying rent, bills and installments.":v>=45?"It will probably fall behind on something.":"It will most likely stop paying some obligations.",
+mDebt:"Risk of taking on more debt",mDebtP:(v,cr,fam)=>(v<30?"Low. ":v<60?"Medium. ":"High. ")+(cr?"If it borrows, it can use formal credit.":"Without formal credit, debt would come from cash advances, store credit or informal lenders, which cost more.")+(fam?" Family absorbs part of the shock.":""),
+mRec:"Time to recover",mRecV:m=>`${m} month${m===1?"":"s"}`,mRecP:"Months to return to where it was, if no other shock arrives.",
+mStress:"Financial stress",mStressP:v=>v<35?"Limited worry: the shock is felt, but there is something to lean on.":v<65?"Constant worry about making ends meet.":"High stress: anxiety, conflict and short-term decisions. Evidence links it to worse mental health.",
+ghost:"same shock, no cushions",compare:(a,b)=>`With its cushions, the shock takes <b>${a}</b> points of the household's capacity. Without them it would take <b>${b}</b>.`,
+INC:{formal:["Salaried job with contract","with social security"],informal:["Informal or self-employed work","variable income"],pension:["Pension","fixed, low income"]},
+LOAD:{second:["Second earner in the household","someone else contributes"],rent:["Pays rent",""],mort:["Pays a mortgage",""],kids:["Children or dependents",""],care:["Cares for a sick relative",""],cons:["Consumer debt","cards, store credit"],stud:["Student loan",""]},
+BUF:{sav:["Savings for 3 months",""],fam:["Family that can help",""],unemp:["Unemployment insurance","only with a contract"],health:["Supplementary health insurance",""],state:["Public benefits","subsidies, transfers"],credit:["Access to bank credit",""],home:["Home fully paid","wealth"]},
+SHOCK:{job:"Job loss or income drop",ill:"Illness",prices:"Rising cost of living",repair:"Urgent repair"},
+pickHH:"Pick a household",adjust:"Adjust its conditions",fInc:"Monthly income",fExp:"Fixed monthly expenses",fDebt:"Current debt installments",fSav:"Available savings",
+fJob:"Main job",fNet:"Support network (family and friends)",fCard:"Store credit card",formalY:"With contract",formalN:"No contract",
+NET:{fuerte:"Strong",algo:"Some",debil:"Weak",ninguna:"None"},yes:"Yes",no:"No",
+shocksT:"Shocks",shock1:"First shock (type, month, duration)",shock2:"Second shock (optional)",none:"None",monthN:m=>`Month ${m}`,durN:d=>`${d} month${d===1?"":"s"}`,
+reroll:"Another possible story",
+bInc:"Income, month 1",bNeed:"Expenses and installments, month 1",bMargin:"Margin, month 1",
+chart1T:"How much is left over or missing each month",chart1S:"Above the line, what was left of income. Below the line, what was missing and where the money came from, from cheapest to most expensive. Tap a column to see that month's budget.",
+chart2T:"What the road leaves behind",chart2S:"Remaining savings, debt still owed and overdue bills, month by month. Below, estimated financial stress.",
+SRC:{own:"Own income",ins:"Unemployment insurance",sav:"Savings",cut:"Spending cuts",fam:"Family and friends",bank:"Bank loan",card:"Cash advance",arr:"Left unpaid"},
+lines:{S:"Savings",debt:"Debt owed",arr:"Overdue bills",stress:"Financial stress"},
+mdT:m=>`The budget for month ${m}`,mIn:"In",mOut:"Out",mCover:"How it was covered",mInc:"Income from work or pension",mIns:"Unemployment insurance",mExp:"Fixed expenses",mExtra:"Extra cost from the shock",mInst:"Debt installments",mGap:"Shortfall",mSurplus:"Surplus",mNoGap:"Money was enough this month. The surplus paid overdue bills or was saved.",
+storyT:"One possible story",storyS:"What happened to this household in one of the simulations. Tap “Another possible story” to see a different one.",storyQuiet:"Two quiet years: income was enough every month.",
+ev:{sav:a=>`Used ${a} of its savings.`,cut:a=>`Cut ${a} from household spending.`,famY:a=>`Asked family for help and got ${a}.`,famN:"Asked family for help, but they could not.",bankY:(a,c)=>`The bank lent ${a}, in 12 installments of ${c}.`,bankN:"Applied for a bank loan and was turned down.",card:(a,c)=>`Took a cash advance of ${a}, in 6 installments of ${c}.`,arr:a=>`${a} was left unpaid.`,ins:a=>`Received ${a} from unemployment insurance.`,shock:s=>`The shock hits: ${s.toLowerCase()}.`,paid:a=>`Caught up on ${a} of overdue bills.`},
+mcT:"Across 400 simulations of the same household",mcS:"Luck varies: sometimes family can help and sometimes not, sometimes the bank approves and sometimes not. This summarizes every story.",
+st:{arr:"end with overdue bills",card:"used a cash advance",debt:"new debt still owed at month 24 (median)",stress:"months of high stress (median)"},
+assumpT:"Simulation assumptions",
+A:[["Catching up","After the shock, the household cuts up to 6% of spending to pay overdue bills.","assumption"],["Unemployment insurance","70%, 55%, 45%, 40% and 35% of lost income, months 1 to 5. Contract workers only.","AFC Chile"],["Spending cuts","Up to 8% of fixed expenses","assumption"],["Family and friends","Probability of helping: 85% strong, 55% some, 30% weak. Each time they help, the next is less likely (network fatigue).","assumption"],["Amount family gives","Up to CLP 400,000, 200,000 or 90,000 per month depending on the network","assumption"],["Bank loan","Approval 70% with contract and no arrears, 30% with arrears, 20% without contract. 29.6% annual rate, 12 installments.","2026 market rate"],["Cash advance","Limit CLP 300,000. 41.1% annual rate, 6 installments.","legal maximum rate"],["Surplus","First pays overdue bills; the rest is saved.","assumption"],["Financial stress","0–100 index from the month's shortfall, arrears, installment burden and help requested. Illustrative, not a clinical measure.","assumption"]],
+assumpH:["Element","How it works","Source"],
+foot:"Economic Security Lab · Gonzalo Torres · Redesign proposal, October 2026. Amounts in Chilean pesos, illustrative.",
+PRESET:{madre:["Single mother with two children","Works without a contract, lives with relatives."],dos:["Renting family with two incomes","One with a contract, one self-employed."],clase:["Middle-class family with a mortgage","Both with contracts, little savings."],mayores:["Older couple","Living on low pensions, no savings."]}
+}};
 
-  var M = {
-    M1:{t:"Golpe sin colchón",chain:["golpe","falta de liquidez","deterioro material","estrés","cambio de trayectoria"],d:"Lo decisivo no es que ocurra el golpe, sino si hay cómo absorberlo."},
-    M2:{t:"Deuda como colchón y carga",chain:["necesidad","crédito","continuidad","obligación futura","restricción o crisis"],d:"La deuda sostiene en el corto plazo y puede restringir después: las cuotas no se ajustan cuando cae el ingreso."},
-    M3:{t:"Riqueza como protección invisible",chain:["activos","capacidad de absorber","continuidad","ventaja acumulada"],d:"El patrimonio y la familia protegen aunque no se gasten. Ojo: un patrimonio inmovilizado ayuda poco ante una urgencia."},
-    M4:{t:"Mezclas de bienestar",chain:["familia","Estado","mercado","deuda","seguridad efectiva"],d:"Un mismo trabajo precario se vuelve o no precariedad según el apoyo familiar y estatal que lo acompaña."},
-    M5:{t:"De lo objetivo a lo vivido",chain:["condición material","mediaciones","interpretación","experiencia"],d:"La misma situación material se vive distinto según expectativas, historia e instituciones."},
-    M6:{t:"El tiempo de la amenaza",chain:["crisis pasadas","presente incierto","futuro no garantizado","inseguridad anticipada"],d:"Cuotas, contratos y caídas repetidas hacen que la inseguridad se anticipe y se posterguen decisiones."},
-    M7:{t:"Trayectorias bajo restricción",chain:["poco colchón","costos altos","decisión restringida","trayectoria desigual"],d:"La inseguridad cambia decisiones de estudio, trabajo y familia, y esas decisiones se acumulan."},
-    M8:{t:"Traducción política",chain:["experiencia de inseguridad","interpretación política","respuesta social"],d:"La inseguridad puede volverse demanda de protección, desconfianza, protesta o retraimiento."}
-  };
+/* contenido de Aprender, por idioma */
+const LEARN={
+es:`
+<section class="statement">
+  <h2>La inseguridad aparece cuando <span class="hl">los riesgos superan los colchones</span></h2>
+  <p>La seguridad económica es la capacidad de sostener la vida cotidiana y proyectar el futuro frente a golpes, obligaciones y transiciones.</p>
+  <div class="formula"><span class="t s">exposición a golpes y obligaciones</span><span class="op">−</span><span class="t b">colchones disponibles</span><span class="op">+</span><span class="t">cómo se interpreta el riesgo</span><span class="op">=</span><span class="t r">inseguridad económica</span></div>
+  <p style="font-size:16px">No es una ecuación para calcular, sino un mapa para ordenar lo que sabemos. Dos personas en la misma situación material pueden vivirla de forma muy distinta según su historia, su clase y las instituciones que las rodean.</p>
+</section>
+<section>
+  <div class="sec-head"><h2>Del riesgo a sus consecuencias</h2><p>El mismo riesgo produce resultados distintos según lo que haya en el medio.</p></div>
+  <div class="layers">
+    <div class="layer a"><span class="k">Exposición</span><h3>¿Dónde aparece el riesgo?</h3><ul><li>Ingreso bajo o variable</li><li>Desempleo, informalidad</li><li>Deudas y pagos rígidos</li><li>Gastos de vivienda, salud, educación y cuidados</li><li>Golpes familiares o laborales</li></ul></div>
+    <div class="layer b"><span class="k">Colchones</span><h3>¿Qué amortigua el golpe?</h3><ul><li>Ahorro y liquidez</li><li>Patrimonio y vivienda</li><li>Apoyo y transferencias familiares</li><li>Crédito y seguros</li><li>Beneficios sociales y empleo protegido</li></ul></div>
+    <div class="layer c"><span class="k">Resultados</span><h3>¿En qué se convierte?</h3><ul><li>Estrés financiero y salud mental</li><li>Estudios interrumpidos o postergados</li><li>Deuda defensiva</li><li>Movilidad descendente</li><li>Confianza, protesta o retraimiento</li></ul></div>
+  </div>
+  <div class="chains">
+    <div class="chain"><span>Ingreso variable</span><i>→</i><span>poca liquidez</span><i>→</i><span>deuda o ayuda familiar</span><i>→</i><span>estrés financiero</span><i>→</i><span>salud deteriorada o estudios postergados</span></div>
+    <div class="chain"><span>Estudios caros</span><i>→</i><span>familia que puede pagar</span><i>→</i><span>menos deuda y menos trabajo paralelo</span><i>→</i><span>termina la carrera</span><i>→</i><span>ventaja acumulada</span></div>
+  </div>
+</section>
+<section>
+  <div class="sec-head right"><h2>Ocho mecanismos</h2><p>Cada uno es una secuencia que la literatura documenta. Ábrelos para ver el camino y dónde leer más.</p></div>
+  <div class="mechs">${[
+   ["M1","Golpe sin colchón","Lo decisivo no es el golpe, sino si hay cómo absorberlo.","golpe → falta de liquidez o protección → deterioro material → estrés → cambio de trayectoria","Una enfermedad o un despido no tienen el mismo efecto en todos los hogares. La diferencia la ponen el ahorro, la familia, el crédito, los seguros y la política social.","Hacker et al. 2014 · Espinosa, Friedman y Yévenes 2014 · Bania y Leete 2022"],
+   ["M2","La deuda como colchón y como carga","Sostiene en el corto plazo y puede debilitar en el mediano.","necesidad → crédito → continuidad → obligación futura → restricción o crisis","Importan su tipo, plazo, acreedor y cuánto pesa la cuota. En Chile, el crédito de consumo está mucho más extendido que el hipotecario.","Dwyer 2018 · Ruiz-Tagle y Vella 2016 · Lea, Webley y Levine 1993"],
+   ["M3","La riqueza como protección invisible","Protege incluso cuando no se gasta.","activos → capacidad de absorber → continuidad → ventaja acumulada","El patrimonio funciona como seguro privado, respaldo familiar y libertad para tomar riesgos.","Killewald, Pfeffer y Schachner 2017 · Jeffrey, Smith y Hamilton 2026 · Rauscher 2016"],
+   ["M4","Mezclas de bienestar","La seguridad viene de varias fuentes combinadas.","familia + Estado + mercado + deuda + comunidad → seguridad efectiva","Un mismo trabajo precario puede volverse precariedad vital o no según el apoyo familiar y estatal disponible.","Antonucci 2018"],
+   ["M5","De lo objetivo a lo vivido","Ni toda vulnerabilidad se siente igual.","condición material → mediaciones → interpretación → experiencia subjetiva","Entre la situación material y la preocupación median expectativas, comparaciones, memoria de crisis, clase e instituciones.","Mau, Mewes y Schoeneck 2012 · Ayala-Hurtado 2026"],
+   ["M6","El tiempo de la amenaza","La inseguridad opera en calendarios y futuros imaginados.","crisis pasadas + presente incierto + futuro no garantizado → inseguridad anticipada","Cuotas, contratos y renovaciones marcan su ritmo. Quien vivió caídas repetidas anticipa la siguiente y posterga decisiones.","Hill et al. 2017 · Bossert y D'Ambrosio 2013 · Ayala-Hurtado 2022"],
+   ["M7","Trayectorias bajo restricción","Cambia decisiones de estudio, trabajo y familia.","poco colchón + costos altos + incertidumbre → decisión restringida → trayectoria desigual","Estudiar mientras se trabaja, endeudarse o postergar tener hijos son decisiones que se acumulan en el tiempo.","Jeffrey, Smith y Hamilton 2026 · Chesters 2019 · Antonucci 2018"],
+   ["M8","Traducción política","Puede volverse solidaridad, protesta o retraimiento.","experiencia de inseguridad → interpretación → respuesta social","Según narrativas e instituciones, se traduce en demanda de protección, desconfianza o acción colectiva.","Bardhan 2022 · Mau, Mewes y Schoeneck 2012"]
+  ].map(m=>`<details class="mech"><summary><span class="n">${m[0]}</span><span><span class="tt">${m[1]}</span><span class="ss">${m[2]}</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="body"><div class="path">${m[3]}</div><p>${m[4]}</p><p class="read">Leer: ${m[5]}</p></div></details>`).join("")}</div>
+</section>
+<section>
+  <div class="sec-head center"><h2>¿Puedes reunir dinero rápido?</h2><p>Ante una emergencia, los hogares bajan por una escalera de opciones. Quien no tiene los primeros peldaños llega antes a los más caros. Es la misma escalera que usa la simulación.</p></div>
+  <div class="ladder">
+    <div class="rung" style="background:var(--buf);min-height:90px">Ahorro propio<small>el colchón directo</small></div>
+    <div class="rung" style="background:var(--cut);min-height:110px;color:var(--ink)">Recortar gastos<small>apretarse</small></div>
+    <div class="rung" style="background:var(--fam);min-height:130px">Familia y amigos<small>depende de la red</small></div>
+    <div class="rung" style="background:var(--debt);min-height:150px">Crédito bancario<small>si lo aprueban</small></div>
+    <div class="rung" style="background:var(--card);min-height:170px">Avance o casa comercial<small>más caro</small></div>
+    <div class="rung" style="background:var(--arr);min-height:190px">Dejar de pagar<small>atrasos</small></div>
+  </div>
+  <div class="ladder-scale"><span>menor costo</span><span>mayor costo</span></div>
+  <p class="cite-me" style="margin-top:16px;color:var(--ink2);max-width:72ch">En Estados Unidos, cerca de uno de cada cuatro hogares declaró que ciertamente no podría reunir USD 2.000 en 30 días (Lusardi, Schneider y Tufano 2011). La fragilidad también apareció en hogares de ingresos medios.</p>
+  <div class="cta"><a class="btn solid" href="#laboratorio/tiempo">Verlo en la simulación →</a></div>
+</section>
+<section>
+  <div class="sec-head"><h2>Lo que muestra la evidencia</h2></div>
+  <div class="evid">
+    <div class="ev cl"><span class="where">Chile</span><span class="big">≈ 1 de 2</span><p>hogares urbanos acumulaba dos o más vulnerabilidades económicas entre 2007 y 2017. La falta de activos es lo que más pesa.</p><span class="src">Prieto 2022 · Encuesta Financiera de Hogares</span></div>
+    <div class="ev cl"><span class="where">Chile</span><span class="big">USD 9,9 y 20</span><p>por persona al día separan vulnerabilidad alta, moderada y baja entre los no pobres.</p><span class="src">Prieto 2024 · Panel CASEN 2006–2009</span></div>
+    <div class="ev cl"><span class="where">Chile y México</span><span class="big">Golpes recientes</span><p>son el principal factor detrás de las expectativas negativas sobre el futuro.</p><span class="src">Espinosa, Friedman y Yévenes 2014</span></div>
+    <div class="ev cl"><span class="where">Chile</span><span class="big">Consumo &gt; hipoteca</span><p>El crédito de consumo atraviesa todos los grupos de ingreso; el hipotecario se concentra arriba.</p><span class="src">Ruiz-Tagle y Vella 2016</span></div>
+    <div class="ev"><span class="where">EE.UU.</span><span class="big">25%</span><p>Umbral del Economic Security Index: perder un cuarto o más de los recursos sin ahorro líquido para cubrirlo.</p><span class="src">Hacker et al. 2014</span></div>
+    <div class="ev"><span class="where">EE.UU.</span><span class="big">1,3–4,3%</span><p>más probabilidad de que empeore la salud por cada desviación estándar de volatilidad del ingreso, solo en hogares sin liquidez.</p><span class="src">Bania y Leete 2022</span></div>
+    <div class="ev"><span class="where">Europa</span><span class="big">Ilíquido = frágil</span><p>Tener el patrimonio inmovilizado aumenta la fragilidad; la protección social la reduce.</p><span class="src">Brunetti, Giarda y Torricelli 2025</span></div>
+    <div class="ev"><span class="where">19 países europeos</span><span class="big">Estado de bienestar</span><p>El gasto social reduce la inseguridad percibida.</p><span class="src">Mau, Mewes y Schoeneck 2012</span></div>
+  </div>
+</section>
+<section>
+  <div class="sec-head right"><h2>Cómo se mide</h2><p>Cada enfoque hace una pregunta distinta. Juntos cubren el fenómeno.</p></div>
+  <div class="tbl"><table><thead><tr><th>Enfoque</th><th>La pregunta</th><th>Referencias</th><th>Datos típicos</th></tr></thead><tbody>
+  <tr><td><b>Pérdidas no amortiguadas</b></td><td>¿Perdió una parte grande de sus recursos sin colchón líquido?</td><td>Hacker et al. 2014; Bossert y D'Ambrosio 2013</td><td>Paneles de hogares</td></tr>
+  <tr><td><b>Índice multidimensional</b></td><td>¿Cuántas vulnerabilidades acumula a la vez?</td><td>Prieto 2022</td><td>Encuesta Financiera de Hogares</td></tr>
+  <tr><td><b>Vulnerabilidad a la pobreza</b></td><td>¿Qué probabilidad tiene de caer en pobreza aunque hoy no sea pobre?</td><td>López-Calva y Ortiz-Juárez 2014; Prieto 2024</td><td>Panel CASEN</td></tr>
+  <tr><td><b>Fragilidad financiera</b></td><td>¿Puede reunir dinero para una emergencia en poco tiempo?</td><td>Lusardi et al. 2011; Brunetti et al. 2025</td><td>Encuestas de hogares</td></tr>
+  <tr><td><b>Inseguridad subjetiva</b></td><td>¿Teme perder su empleo, sus ingresos o su salud?</td><td>Mau et al. 2012; Espinosa et al. 2014</td><td>Encuestas de opinión y panel</td></tr>
+  </tbody></table></div>
+</section>
+<section>
+  <div class="sec-head center"><h2>Para leer</h2><p>Cuatro rutas, de la lectura más accesible a la más específica. Cada título lleva al artículo original.</p></div>
+  <div class="routes">
+    <div class="route"><h3>Medir la seguridad económica</h3><ol><li>The Economic Security Index<span>Hacker et al. 2014</span></li><li>Measuring Economic Insecurity<span>Bossert y D'Ambrosio 2013</span></li><li>A Multidimensional Approach… Chile<span>Prieto 2022</span></li><li>Degrees of vulnerability to poverty<span>Prieto 2024</span></li></ol></div>
+    <div class="route"><h3>Entender la deuda</h3><ol><li>Credit, Debt, and Inequality<span>Dwyer 2018</span></li><li>The economic psychology of consumer debt<span>Lea, Webley y Levine 1993</span></li><li>Borrowing Constraints and Credit Demand<span>Ruiz-Tagle y Vella 2016</span></li><li>Financial Fragility Across Europe<span>Brunetti et al. 2025</span></li></ol></div>
+    <div class="route"><h3>Juventud y futuro</h3><ol><li>Not all experiences of precarious work lead to precarity<span>Antonucci 2018</span></li><li>Narrative Continuity/Rupture<span>Ayala-Hurtado 2022</span></li><li>Hidden Advantage along the Pipeline<span>Jeffrey, Smith y Hamilton 2026</span></li><li>Passing It On<span>Rauscher 2016</span></li></ol></div>
+    <div class="route"><h3>Subjetividad y política</h3><ol><li>What determines subjective socio-economic insecurity?<span>Mau, Mewes y Schoeneck 2012</span></li><li>Qualities and Configurations of Insecurity<span>Ayala-Hurtado 2026</span></li><li>Household Economic Instability and Social Policy<span>Hill et al. 2017</span></li><li>A world of insecurity<span>Bardhan 2022</span></li></ol></div>
+  </div>
+  <div class="cta"><a class="btn solid" href="#laboratorio">Ir al laboratorio →</a></div>
+</section>`,
+en:`
+<section class="statement">
+  <h2>Insecurity appears when <span class="hl">risks outweigh cushions</span></h2>
+  <p>Economic security is the capacity to sustain everyday life and plan for the future in the face of shocks, obligations and transitions.</p>
+  <div class="formula"><span class="t s">exposure to shocks and obligations</span><span class="op">−</span><span class="t b">available cushions</span><span class="op">+</span><span class="t">how risk is interpreted</span><span class="op">=</span><span class="t r">economic insecurity</span></div>
+  <p style="font-size:16px">It is not an equation to compute but a map to organize what we know. Two people in the same material situation can experience it very differently depending on their history, their class and the institutions around them.</p>
+</section>
+<section>
+  <div class="sec-head"><h2>From risk to consequences</h2><p>The same risk produces different outcomes depending on what stands in between.</p></div>
+  <div class="layers">
+    <div class="layer a"><span class="k">Exposure</span><h3>Where does risk appear?</h3><ul><li>Low or variable income</li><li>Unemployment, informality</li><li>Debts and rigid payments</li><li>Housing, health, education and care costs</li><li>Family or job shocks</li></ul></div>
+    <div class="layer b"><span class="k">Cushions</span><h3>What absorbs the shock?</h3><ul><li>Savings and liquidity</li><li>Wealth and housing</li><li>Family support and transfers</li><li>Credit and insurance</li><li>Social benefits and protected jobs</li></ul></div>
+    <div class="layer c"><span class="k">Outcomes</span><h3>What does it turn into?</h3><ul><li>Financial stress and mental health</li><li>Interrupted or postponed studies</li><li>Defensive debt</li><li>Downward mobility</li><li>Trust, protest or withdrawal</li></ul></div>
+  </div>
+  <div class="chains">
+    <div class="chain"><span>Variable income</span><i>→</i><span>little liquidity</span><i>→</i><span>debt or family help</span><i>→</i><span>financial stress</span><i>→</i><span>worse health or postponed studies</span></div>
+    <div class="chain"><span>Costly studies</span><i>→</i><span>family that can pay</span><i>→</i><span>less debt and less side work</span><i>→</i><span>degree completed</span><i>→</i><span>accumulated advantage</span></div>
+  </div>
+</section>
+<section>
+  <div class="sec-head right"><h2>Eight mechanisms</h2><p>Each is a sequence documented in the literature. Open one to see the path and where to read more.</p></div>
+  <div class="mechs">${[
+   ["M1","Shock without a cushion","What matters is not the shock but whether it can be absorbed.","shock → lack of liquidity or protection → material decline → stress → change of trajectory","An illness or a layoff does not hit every household the same way. Savings, family, credit, insurance and social policy make the difference.","Hacker et al. 2014 · Espinosa, Friedman & Yévenes 2014 · Bania & Leete 2022"],
+   ["M2","Debt as cushion and as burden","It sustains in the short run and can weaken in the medium run.","need → credit → continuity → future obligation → constraint or crisis","Type, term, lender and the weight of the installment matter. In Chile, consumer credit is far more widespread than mortgages.","Dwyer 2018 · Ruiz-Tagle & Vella 2016 · Lea, Webley & Levine 1993"],
+   ["M3","Wealth as invisible protection","It protects even when it is not spent.","assets → capacity to absorb → continuity → accumulated advantage","Wealth works as private insurance, family backing and freedom to take risks.","Killewald, Pfeffer & Schachner 2017 · Jeffrey, Smith & Hamilton 2026 · Rauscher 2016"],
+   ["M4","Welfare mixes","Security comes from several sources combined.","family + state + market + debt + community → effective security","The same precarious job may or may not become precarious living depending on family and state support.","Antonucci 2018"],
+   ["M5","From objective to lived","Not every vulnerability feels the same.","material condition → mediations → interpretation → subjective experience","Expectations, comparisons, memory of crises, class and institutions stand between material conditions and worry.","Mau, Mewes & Schoeneck 2012 · Ayala-Hurtado 2026"],
+   ["M6","The timing of threat","Insecurity runs on calendars and imagined futures.","past crises + uncertain present + unguaranteed future → anticipated insecurity","Installments, contracts and renewals set its rhythm. Those who lived repeated falls anticipate the next one and postpone decisions.","Hill et al. 2017 · Bossert & D'Ambrosio 2013 · Ayala-Hurtado 2022"],
+   ["M7","Constrained trajectories","It changes decisions about study, work and family.","little cushion + high costs + uncertainty → constrained choice → unequal trajectory","Working while studying, borrowing or postponing children are decisions that accumulate over time.","Jeffrey, Smith & Hamilton 2026 · Chesters 2019 · Antonucci 2018"],
+   ["M8","Political translation","It can become solidarity, protest or withdrawal.","experience of insecurity → interpretation → social response","Depending on narratives and institutions, it turns into demands for protection, distrust or collective action.","Bardhan 2022 · Mau, Mewes & Schoeneck 2012"]
+  ].map(m=>`<details class="mech"><summary><span class="n">${m[0]}</span><span><span class="tt">${m[1]}</span><span class="ss">${m[2]}</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="body"><div class="path">${m[3]}</div><p>${m[4]}</p><p class="read">Read: ${m[5]}</p></div></details>`).join("")}</div>
+</section>
+<section>
+  <div class="sec-head center"><h2>Can you raise money fast?</h2><p>In an emergency, households climb down a ladder of options. Those without the first rungs reach the costly ones sooner. The simulation uses this same ladder.</p></div>
+  <div class="ladder">
+    <div class="rung" style="background:var(--buf);min-height:90px">Own savings<small>the direct cushion</small></div>
+    <div class="rung" style="background:var(--cut);min-height:110px;color:var(--ink)">Cut spending<small>tighten the belt</small></div>
+    <div class="rung" style="background:var(--fam);min-height:130px">Family and friends<small>depends on the network</small></div>
+    <div class="rung" style="background:var(--debt);min-height:150px">Bank loan<small>if approved</small></div>
+    <div class="rung" style="background:var(--card);min-height:170px">Cash advance or store credit<small>more expensive</small></div>
+    <div class="rung" style="background:var(--arr);min-height:190px">Stop paying<small>arrears</small></div>
+  </div>
+  <div class="ladder-scale"><span>lower cost</span><span>higher cost</span></div>
+  <p class="cite-me" style="margin-top:16px;color:var(--ink2);max-width:72ch">In the United States, about one in four households said they certainly could not raise USD 2,000 in 30 days (Lusardi, Schneider & Tufano 2011). Fragility also appeared among middle-income households.</p>
+  <div class="cta"><a class="btn solid" href="#laboratorio/tiempo">See it in the simulation →</a></div>
+</section>
+<section>
+  <div class="sec-head"><h2>What the evidence shows</h2></div>
+  <div class="evid">
+    <div class="ev cl"><span class="where">Chile</span><span class="big">≈ 1 in 2</span><p>urban households accumulated two or more economic vulnerabilities between 2007 and 2017. Lack of assets weighs most.</p><span class="src">Prieto 2022 · Household Finance Survey</span></div>
+    <div class="ev cl"><span class="where">Chile</span><span class="big">USD 9.9 and 20</span><p>per person per day separate high, moderate and low vulnerability among the non-poor.</p><span class="src">Prieto 2024 · CASEN Panel 2006–2009</span></div>
+    <div class="ev cl"><span class="where">Chile and Mexico</span><span class="big">Recent shocks</span><p>are the main factor behind negative expectations about the future.</p><span class="src">Espinosa, Friedman & Yévenes 2014</span></div>
+    <div class="ev cl"><span class="where">Chile</span><span class="big">Consumer &gt; mortgage</span><p>Consumer credit cuts across all income groups; mortgages concentrate at the top.</p><span class="src">Ruiz-Tagle & Vella 2016</span></div>
+    <div class="ev"><span class="where">USA</span><span class="big">25%</span><p>Threshold of the Economic Security Index: losing a quarter or more of resources without liquid savings to cover it.</p><span class="src">Hacker et al. 2014</span></div>
+    <div class="ev"><span class="where">USA</span><span class="big">1.3–4.3%</span><p>higher probability of worse health per standard deviation of income volatility, only in households without liquidity.</p><span class="src">Bania & Leete 2022</span></div>
+    <div class="ev"><span class="where">Europe</span><span class="big">Illiquid = fragile</span><p>Tied-up wealth increases fragility; social protection reduces it.</p><span class="src">Brunetti, Giarda & Torricelli 2025</span></div>
+    <div class="ev"><span class="where">19 European countries</span><span class="big">Welfare state</span><p>Social spending reduces perceived insecurity.</p><span class="src">Mau, Mewes & Schoeneck 2012</span></div>
+  </div>
+</section>
+<section>
+  <div class="sec-head right"><h2>How it is measured</h2><p>Each approach asks a different question. Together they cover the phenomenon.</p></div>
+  <div class="tbl"><table><thead><tr><th>Approach</th><th>The question</th><th>References</th><th>Typical data</th></tr></thead><tbody>
+  <tr><td><b>Unbuffered losses</b></td><td>Did it lose a large share of resources without a liquid cushion?</td><td>Hacker et al. 2014; Bossert & D'Ambrosio 2013</td><td>Household panels</td></tr>
+  <tr><td><b>Multidimensional index</b></td><td>How many vulnerabilities does it accumulate at once?</td><td>Prieto 2022</td><td>Household Finance Survey</td></tr>
+  <tr><td><b>Vulnerability to poverty</b></td><td>How likely is it to fall into poverty even if not poor today?</td><td>López-Calva & Ortiz-Juárez 2014; Prieto 2024</td><td>CASEN Panel</td></tr>
+  <tr><td><b>Financial fragility</b></td><td>Can it raise money for an emergency quickly?</td><td>Lusardi et al. 2011; Brunetti et al. 2025</td><td>Household surveys</td></tr>
+  <tr><td><b>Subjective insecurity</b></td><td>Does it fear losing its job, income or health?</td><td>Mau et al. 2012; Espinosa et al. 2014</td><td>Opinion and panel surveys</td></tr>
+  </tbody></table></div>
+</section>
+<section>
+  <div class="sec-head center"><h2>Further reading</h2><p>Four routes, from the most accessible reading to the most specific. Each title links to the original article.</p></div>
+  <div class="routes">
+    <div class="route"><h3>Measuring economic security</h3><ol><li>The Economic Security Index<span>Hacker et al. 2014</span></li><li>Measuring Economic Insecurity<span>Bossert & D'Ambrosio 2013</span></li><li>A Multidimensional Approach… Chile<span>Prieto 2022</span></li><li>Degrees of vulnerability to poverty<span>Prieto 2024</span></li></ol></div>
+    <div class="route"><h3>Understanding debt</h3><ol><li>Credit, Debt, and Inequality<span>Dwyer 2018</span></li><li>The economic psychology of consumer debt<span>Lea, Webley & Levine 1993</span></li><li>Borrowing Constraints and Credit Demand<span>Ruiz-Tagle & Vella 2016</span></li><li>Financial Fragility Across Europe<span>Brunetti et al. 2025</span></li></ol></div>
+    <div class="route"><h3>Youth and the future</h3><ol><li>Not all experiences of precarious work lead to precarity<span>Antonucci 2018</span></li><li>Narrative Continuity/Rupture<span>Ayala-Hurtado 2022</span></li><li>Hidden Advantage along the Pipeline<span>Jeffrey, Smith & Hamilton 2026</span></li><li>Passing It On<span>Rauscher 2016</span></li></ol></div>
+    <div class="route"><h3>Subjectivity and politics</h3><ol><li>What determines subjective socio-economic insecurity?<span>Mau, Mewes & Schoeneck 2012</span></li><li>Qualities and Configurations of Insecurity<span>Ayala-Hurtado 2026</span></li><li>Household Economic Instability and Social Policy<span>Hill et al. 2017</span></li><li>A world of insecurity<span>Bardhan 2022</span></li></ol></div>
+  </div>
+  <div class="cta"><a class="btn solid" href="#laboratorio">Go to the lab →</a></div>
+</section>`};
 
-  var P = [
-    {id:"prieto22",c:"Prieto 2022",t:"A Multidimensional Approach to Measuring Economic Insecurity: The Case of Chile",u:"https://doi.org/10.1007/s11205-022-02918-5",cl:1,a:"Mide en Chile cuatro vulnerabilidades a la vez: golpes, empleo no protegido, sobreendeudamiento y pobreza de activos.",k:["job","debt","sav","wealth","M1"]},
-    {id:"prieto24",c:"Prieto 2024",t:"Degrees of vulnerability to poverty: a low-income dynamics approach for Chile",u:"https://doi.org/10.1007/s10888-023-09611-8",cl:1,a:"Distingue grados de riesgo de caer en pobreza entre quienes hoy no son pobres.",k:["vol","state","M6"]},
-    {id:"espinosa",c:"Espinosa, Friedman y Yévenes 2014",t:"Adverse Shocks and Economic Insecurity: Evidence from Chile and Mexico",u:"https://doi.org/10.1111/roiw.12052",cl:1,a:"Los golpes recientes, la edad y la salud explican las expectativas negativas en Chile y México.",k:["health","past","worry","M1","M5"]},
-    {id:"ruiztagle",c:"Ruiz-Tagle y Vella 2016",t:"Borrowing Constraints and Credit Demand in a Developing Economy",u:"https://doi.org/10.1002/jae.2465",cl:1,a:"En Chile el crédito de consumo atraviesa todos los ingresos; el hipotecario se concentra arriba.",k:["debt","wealth","M2"]},
-    {id:"lopezcalva",c:"López-Calva y Ortiz-Juárez 2014",t:"A vulnerability approach to the definition of the middle class",u:"https://doi.org/10.1007/s10888-012-9240-5",cl:1,a:"Define la clase media por su protección frente a caer en pobreza, no por su ingreso.",k:["vol","job","M6"]},
-    {id:"stampini",c:"Stampini et al. 2016",t:"Poverty, vulnerability, and the middle class in Latin America",u:"https://doi.org/10.1007/s40503-016-0034-1",cl:1,a:"Muestra cuántos latinoamericanos no pobres siguen expuestos a caer.",k:["job","state","M6"]},
-    {id:"hacker",c:"Hacker et al. 2014",t:"The Economic Security Index",u:"https://doi.org/10.1111/roiw.12053",cl:0,a:"Inseguro es quien pierde 25% o más de sus recursos sin un colchón líquido.",k:["vol","health","sav","M1"]},
-    {id:"bossert",c:"Bossert y D'Ambrosio 2013",t:"Measuring Economic Insecurity",u:"https://doi.org/10.1111/iere.12026",cl:0,a:"La inseguridad depende de la riqueza actual y de cómo le fue al hogar antes.",k:["wealth","past","M6"]},
-    {id:"lusardi",c:"Lusardi, Schneider y Tufano 2011",t:"Financially Fragile Households",u:"https://doi.org/10.3386/w17072",cl:0,a:"¿Puede el hogar reunir USD 2.000 en 30 días? Casi la mitad en EE.UU. no.",k:["sav","fam","care","rent","M1"]},
-    {id:"fernandez",c:"Fernández-López et al. 2024",t:"Consumer financial vulnerability: Review, synthesis, and future research agenda",u:"https://doi.org/10.1111/joes.12573",cl:0,a:"Ordena el campo de la vulnerabilidad financiera de los consumidores.",k:["debt","sav","worry","M2"]},
-    {id:"brunetti",c:"Brunetti, Giarda y Torricelli 2025",t:"Financial Fragility Across Europe",u:"https://doi.org/10.1007/s11205-024-03456-y",cl:0,a:"El patrimonio ilíquido aumenta la fragilidad; la protección social la reduce.",k:["wealth","sav","state","M3"]},
-    {id:"bania",c:"Bania y Leete 2022",t:"Monthly income volatility and health outcomes",u:"https://doi.org/10.1111/coep.12580",cl:0,a:"La volatilidad mensual del ingreso daña la salud en hogares sin liquidez.",k:["vol","health","sav","M1","M6"]},
-    {id:"hill",c:"Hill et al. 2017",t:"An Introduction to Household Economic Instability and Social Policy",u:"https://doi.org/10.1086/694110",cl:0,a:"La política social puede amortiguar o amplificar la inestabilidad del hogar.",k:["vol","ins","state","rent","M4","M6"]},
-    {id:"dwyer",c:"Dwyer 2018",t:"Credit, Debt, and Inequality",u:"https://doi.org/10.1146/annurev-soc-060116-053420",cl:0,a:"La deuda convierte el futuro en una obligación presente.",k:["debt","M2","M8"]},
-    {id:"lea",c:"Lea, Webley y Levine 1993",t:"The economic psychology of consumer debt",u:"https://doi.org/10.1016/0167-4870(93)90041-I",cl:0,a:"Qué distingue psicológica y económicamente a quienes caen en deudas impagas.",k:["debt","worry","M2","M5"]},
-    {id:"fligstein",c:"Fligstein y Goldstein 2015",t:"The emergence of a finance culture in American households, 1989–2007",u:"https://doi.org/10.1093/ser/mwu035",cl:0,a:"Cómo los hogares adoptaron el crédito y la inversión como forma de vida.",k:["debt","wealth","M2"]},
-    {id:"killewald",c:"Killewald, Pfeffer y Schachner 2017",t:"Wealth Inequality and Accumulation",u:"https://doi.org/10.1146/annurev-soc-060116-053331",cl:0,a:"La riqueza es acumulativa y protege trayectorias aunque no aparezca como ingreso.",k:["wealth","fam","M3"]},
-    {id:"jeffrey",c:"Jeffrey, Smith y Hamilton 2026",t:"Hidden Advantage along the Pipeline",u:"https://doi.org/10.1177/00380407261457391",cl:0,a:"La riqueza familiar empuja cada transición educativa, hasta el posgrado.",k:["study","fam","wealth","M3","M7"]},
-    {id:"rauscher",c:"Rauscher 2016",t:"Passing It On: Parent-to-Adult Child Financial Transfers for School",u:"https://doi.org/10.7758/RSF.2016.2.6.09",cl:0,a:"Las transferencias de padres a hijos adultos sostienen estudios y logros.",k:["study","fam","M3","M7"]},
-    {id:"chesters",c:"Chesters 2019",t:"Egalitarian Australia? Family wealth and outcomes in young adulthood",u:"https://doi.org/10.1177/1440783318777293",cl:0,a:"La riqueza familiar se asocia a mejores resultados en la adultez joven.",k:["fam","study","M3","M7"]},
-    {id:"antonucci",c:"Antonucci 2018",t:"Not all experiences of precarious work lead to precarity",u:"https://doi.org/10.1080/13676261.2017.1421749",cl:0,a:"El trabajo precario se vuelve precariedad solo si falta apoyo familiar y estatal.",k:["job","study","fam","state","M4","M7"]},
-    {id:"ayala22",c:"Ayala-Hurtado 2022",t:"Narrative Continuity/Rupture: Projected Professional Futures amid Pervasive Employment Precarity",u:"https://doi.org/10.1177/07308884211028277",cl:0,a:"Cómo jóvenes profesionales proyectan su futuro en un mercado laboral precario.",k:["job","study","worry","M6","M7"]},
-    {id:"ayala26",c:"Ayala-Hurtado 2026",t:"Qualities and Configurations of Insecurity in the United States and Spain",u:"https://doi.org/10.1177/07308884251382499",cl:0,a:"La inseguridad se vive estrecha y transitoria en España, amplia y recurrente en EE.UU.",k:["worry","past","state","M5"]},
-    {id:"mau",c:"Mau, Mewes y Schoeneck 2012",t:"What determines subjective socio-economic insecurity?",u:"https://doi.org/10.1093/ser/mws001",cl:0,a:"El gasto social y la clase estructuran la inseguridad percibida en Europa.",k:["worry","state","ins","job","M5","M8"]},
-    {id:"bardhan",c:"Bardhan 2022",t:"A world of insecurity: democratic disenchantment in rich and poor countries",u:"https://doi.org/10.4159/9780674287570",cl:0,a:"Conecta la inseguridad económica con el desencanto democrático.",k:["worry","distrust","M8"]},
-    {id:"lowell",c:"Lowell 2026",t:"When are they insecure? Housing arrangements and residential mobility among families with children",u:"https://muse.jhu.edu/pub/8/article/982017",cl:0,a:"Arreglos de vivienda y mudanzas como fuente de inseguridad en familias con hijos.",k:["rent","care","M6"]},
-    {id:"gallo",c:"Gallo et al. 2024",t:"A Composite Inter-Temporal Economic Insecurity Index",u:"https://doi.org/10.1007/s11205-024-03356-1",cl:0,a:"Un índice que combina pasado, presente y expectativas.",k:["past","vol","M6"]}
-  ];
 
-  var PRESETS = {
-    rojas:["vol","job","debt","rent","care"],
-    estudiante:["study","job","worry","fam"],
-    vidal:["rent","sav","ins","fam","wealth"],
-    vacio:[]
-  };
+const REFS={
+antonucci:["Antonucci 2018","Not all experiences of precarious work lead to precarity","https://doi.org/10.1080/13676261.2017.1421749"],
+ayala22:["Ayala-Hurtado 2022","Narrative Continuity/Rupture: Projected Professional Futures amid Pervasive Employment Precarity","https://doi.org/10.1177/07308884211028277"],
+ayala26:["Ayala-Hurtado 2026","Qualities and Configurations of Insecurity in the United States and Spain","https://doi.org/10.1177/07308884251382499"],
+bania:["Bania y Leete 2022","Monthly income volatility and health outcomes","https://doi.org/10.1111/coep.12580"],
+bardhan:["Bardhan 2022","A World of Insecurity: Democratic Disenchantment in Rich and Poor Countries","https://doi.org/10.4159/9780674287570"],
+bossert:["Bossert y D'Ambrosio 2013","Measuring Economic Insecurity","https://doi.org/10.1111/iere.12026"],
+brunetti:["Brunetti, Giarda y Torricelli 2025","Financial Fragility Across Europe","https://doi.org/10.1007/s11205-024-03456-y"],
+chesters:["Chesters 2019","Egalitarian Australia? Family wealth and outcomes in young adulthood","https://doi.org/10.1177/1440783318777293"],
+dwyer:["Dwyer 2018","Credit, Debt, and Inequality","https://doi.org/10.1146/annurev-soc-060116-053420"],
+espinosa:["Espinosa, Friedman y Yévenes 2014","Adverse Shocks and Economic Insecurity: Evidence from Chile and Mexico","https://doi.org/10.1111/roiw.12052"],
+hacker:["Hacker et al. 2014","The Economic Security Index: A New Measure for Research and Policy Analysis","https://doi.org/10.1111/roiw.12053"],
+hill:["Hill et al. 2017","An Introduction to Household Economic Instability and Social Policy","https://doi.org/10.1086/694110"],
+jeffrey:["Jeffrey, Smith y Hamilton 2026","Hidden Advantage along the Pipeline","https://doi.org/10.1177/00380407261457391"],
+killewald:["Killewald, Pfeffer y Schachner 2017","Wealth Inequality and Accumulation","https://doi.org/10.1146/annurev-soc-060116-053331"],
+lea:["Lea, Webley y Levine 1993","The economic psychology of consumer debt","https://doi.org/10.1016/0167-4870(93)90041-I"],
+lopezcalva:["López-Calva y Ortiz-Juárez 2014","A vulnerability approach to the definition of the middle class","https://doi.org/10.1007/s10888-012-9240-5"],
+lusardi:["Lusardi, Schneider y Tufano 2011","Financially Fragile Households: Evidence and Implications","https://doi.org/10.3386/w17072"],
+mau:["Mau, Mewes y Schoeneck 2012","What determines subjective socio-economic insecurity?","https://doi.org/10.1093/ser/mws001"],
+prieto22:["Prieto 2022","A Multidimensional Approach to Measuring Economic Insecurity: The Case of Chile","https://doi.org/10.1007/s11205-022-02918-5"],
+prieto24:["Prieto 2024","Degrees of vulnerability to poverty: a low-income dynamics approach for Chile","https://doi.org/10.1007/s10888-023-09611-8"],
+rauscher:["Rauscher 2016","Passing It On: Parent-to-Adult Child Financial Transfers for School","https://doi.org/10.7758/RSF.2016.2.6.09"],
+ruiztagle:["Ruiz-Tagle y Vella 2016","Borrowing Constraints and Credit Demand in a Developing Economy","https://doi.org/10.1002/jae.2465"]
+};
+const ALIAS={"Mau et al. 2012":"mau","Espinosa et al. 2014":"espinosa","Lusardi et al. 2011":"lusardi","Brunetti et al. 2025":"brunetti"};
+const ROUTES={es:[["Medir la seguridad económica",["hacker","bossert","prieto22","prieto24"]],["Entender la deuda",["dwyer","lea","ruiztagle","brunetti"]],["Juventud y futuro",["antonucci","ayala22","jeffrey","rauscher"]],["Subjetividad y política",["mau","ayala26","hill","bardhan"]]],
+ en:[["Measuring economic security",["hacker","bossert","prieto22","prieto24"]],["Understanding debt",["dwyer","lea","ruiztagle","brunetti"]],["Youth and the future",["antonucci","ayala22","jeffrey","rauscher"]],["Subjectivity and politics",["mau","ayala26","hill","bardhan"]]]};
+function citeName(k){const c=REFS[k][0];return lang==='en'?c.replace(/ y /g,' & '):c}
+function linkCites(root){
+  const pairs=[];for(const k in REFS){pairs.push([REFS[k][0],k]);pairs.push([REFS[k][0].replace(/ y /g,' & '),k])}for(const a in ALIAS)pairs.push([a,ALIAS[a]]);
+  pairs.sort((a,b)=>b[0].length-a[0].length);
+  root.querySelectorAll('.read,.src,.cite-me,td:nth-child(3)').forEach(el=>{let h=el.innerHTML;const marks=[];
+    pairs.forEach(([txt,k])=>{const esc=txt.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"(?:'|&#39;)").replace(/&(?!#39)/g,'(?:&|&amp;)');h=h.replace(new RegExp(esc,'g'),()=>{marks.push(`<a href="${REFS[k][2]}" target="_blank" rel="noopener" title="${REFS[k][1].replace(/"/g,'&quot;')}">${txt}</a>`);return '\u0000'+(marks.length-1)+'\u0000'})});
+    el.innerHTML=h.replace(/\u0000(\d+)\u0000/g,(_,i)=>marks[+i])});
+  const rt=root.querySelector('.routes');if(rt)rt.innerHTML=ROUTES[lang].map(([h,ids])=>`<div class="route"><h3>${h}</h3><ol>${ids.map(k=>`<li><a href="${REFS[k][2]}" target="_blank" rel="noopener">${REFS[k][1]}</a><span>${citeName(k)} · DOI</span></li>`).join('')}</ol></div>`).join('');
+}
+/* ============ IDIOMA Y RUTAS ============ */
+let lang='es';try{const s=localStorage.getItem('esl-lang');if(s==='en'||s==='es')lang=s}catch(_){}
+const t=k=>T[lang][k];
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t(el.dataset.i18n);if(typeof v==='string')el.textContent=v});
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>el.innerHTML=t(el.dataset.i18nHtml));
+  document.querySelectorAll('#lang span').forEach(s=>s.classList.toggle('on',s.dataset.l===lang));
+  document.getElementById('v-aprender').innerHTML=LEARN[lang];linkCites(document.getElementById('v-aprender'));
+  document.title=t('brand');
+  const keep=LV.stale===false&&LV.run;renderBuild();buildSimControls();runSim();if(keep)LV.stale=false;route();
+}
+document.getElementById('lang').onclick=()=>{lang=lang==='es'?'en':'es';try{localStorage.setItem('esl-lang',lang)}catch(_){}applyLang()};
+function route(){
+  const h=(location.hash||'#inicio').slice(1);const [view,mode]=h.split('/');
+  const v=['inicio','aprender','laboratorio'].includes(view)?view:'inicio';
+  ['inicio','aprender','laboratorio'].forEach(x=>document.getElementById('v-'+x).hidden=x!==v);
+  document.querySelectorAll('[data-nav]').forEach(a=>{if(a.dataset.nav===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  const m=['tiempo','vivo'].includes(mode)?mode:'arma';
+  document.getElementById('m-arma').hidden=m!=='arma';document.getElementById('m-tiempo').hidden=m!=='tiempo';document.getElementById('m-vivo').hidden=m!=='vivo';
+  if(m!=='vivo'&&LV.playing)pause();
+  if(m==='vivo'&&!document.getElementById('v-laboratorio').hidden){if(LV.stale||!LV.run)liveInit();else{liveCfg();drawStage();liveSummary()}}
+  document.querySelectorAll('[data-mode]').forEach(a=>a.setAttribute('aria-current',a.dataset.mode===m));
+  document.getElementById('labIntro').textContent=t(m==='arma'?'labIntroBuild':m==='vivo'?'labIntroLive':'labIntroTime');
+}
+let lastView='';
+window.addEventListener('hashchange',()=>{route();const v=(location.hash||'#inicio').slice(1).split('/')[0];if(v!==lastView){window.scrollTo(0,0);lastView=v}});
 
-  var on = {}; var interest = {}; var openMech = null; var shockState = null; var lastShock = null;
-  var $ = function(id){return document.getElementById(id)};
-  function bump(tag, n){interest[tag] = (interest[tag]||0) + n}
+/* ============ ARMA UN HOGAR ============ */
+const INC={formal:34,informal:12,pension:24};
+const LOAD={second:-14,rent:14,mort:12,kids:12,care:10,cons:16,stud:8};
+const BUF={sav:18,fam:12,unemp:8,health:7,state:7,credit:5,home:8};
+const SHK={job:{S:48,M:{sav:16,fam:10,unemp:14,state:6,second:14,credit:4}},ill:{S:38,M:{health:16,sav:12,fam:10,state:4,credit:4}},prices:{S:22,M:{second:6,sav:6,state:6}},repair:{S:26,M:{sav:14,fam:8,credit:8}}};
+const HOUSING=['rent','mort'];
+const B={inc:null,load:new Set(),buf:new Set(),shock:new Set(),step:1};
+function bClamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function bState(){
+  if(!B.inc)return null;
+  const stab=INC[B.inc]+(B.load.has('second')?14:0);
+  let L=0;B.load.forEach(k=>{if(k!=='second')L+=LOAD[k]});
+  let Bf=0;B.buf.forEach(k=>Bf+=BUF[k]);
+  const F=bClamp(Math.round(18+stab+Bf-L),3,100);
+  return {stab,L,Bf,F};
+}
+function bImpact(st,withBuf){
+  let I=0;B.shock.forEach(k=>{const s=SHK[k];let S=s.S;if(k==='job'&&B.inc==='pension')S=28;
+    let M=0;for(const b in s.M){if(b==='second'){if(B.load.has('second'))M+=s.M[b]}else if(withBuf&&B.buf.has(b))M+=s.M[b]}
+    I+=Math.max(3,S*(1+st.L/60)*(1.25-st.stab/100)-M)});
+  const fam=withBuf&&B.buf.has('fam'),cr=withBuf&&B.buf.has('credit'),state=withBuf&&B.buf.has('state');
+  return {I:Math.round(I),obl:bClamp(Math.round(100-1.3*I),2,98),debt:bClamp(Math.round(8+1.25*I+(cr?0:6)),2,98),rec:bClamp(Math.round(1+I/6),1,36),
+    stress:bClamp(Math.round(12+I+(fam?0:10)+(B.load.has('kids')?6:0)-(state?4:0)),2,98),fam,cr};
+}
+function opt(cls,key,lab,pressed,dis){return `<button type="button" class="opt ${cls}" data-k="${key}" aria-pressed="${pressed}" ${dis?'disabled':''}><span class="dot"></span><span>${lab[0]}${lab[1]?`<small>${lab[1]}</small>`:''}</span></button>`}
+function renderBuild(){
+  const L=t('LOAD'),BU=t('BUF'),IN=t('INC'),SH=t('SHOCK');
+  document.getElementById('o-inc').innerHTML=Object.keys(INC).map(k=>opt('inc',k,IN[k],B.inc===k)).join('');
+  document.getElementById('o-load').innerHTML=Object.keys(LOAD).map(k=>opt(k==='second'?'plus':'load',k,L[k],B.load.has(k),!B.inc)).join('');
+  document.getElementById('o-buf').innerHTML=Object.keys(BUF).map(k=>{const dis=B.step<2||(k==='unemp'&&B.inc!=='formal')||(k==='home'&&(B.load.has('rent')||B.load.has('mort')));return opt('buf',k,BU[k],B.buf.has(k),dis)}).join('');
+  document.getElementById('o-shock').innerHTML=Object.keys(SHK).map(k=>`<button type="button" class="btn shock" data-k="${k}" aria-pressed="${B.shock.has(k)}" ${B.step<3?'disabled':''}>${k==='job'&&B.inc==='pension'?(lang==='es'?'Baja de ingresos':'Income drop'):SH[k]}</button>`).join('');
+  ['st1','st2','st3'].forEach((id,i)=>{const el=document.getElementById(id);const n=i+1;el.classList.toggle('active',B.step===n);el.classList.toggle('locked',B.step<n);el.classList.toggle('done',B.step>n)});
+  document.getElementById('next1').disabled=!B.inc||B.step>1;document.getElementById('next1').hidden=B.step>1;
+  document.getElementById('next2').hidden=B.step!==2;
+  document.getElementById('h1').textContent=B.inc?t('loadsN')([...B.load].filter(k=>k!=='second').length):t('pickIncome');
+  renderPanel();
+}
+function meter(label,val,ghost,unitTxt,desc,color,maxV){const w=Math.round(val/maxV*100),g=ghost==null?null:Math.round(ghost/maxV*100);
+  return `<div class="meter"><div class="meter-top"><b>${label}</b><span class="v">${unitTxt}</span></div><div class="mbar"><i style="width:${w}%;background:${color}"></i>${g!=null?`<span class="ghost" style="left:${g}%"></span>`:''}</div><p>${desc}</p></div>`}
+function renderPanel(){
+  const st=bState();
+  const sv=document.getElementById('sv'),sb=document.getElementById('sbar');
+  if(!st){sv.textContent='—';sb.style.width='0%';['p-i','p-c','p-l'].forEach(id=>document.getElementById(id).textContent='0');
+    document.getElementById('chips').innerHTML=`<span class="empty">${t('emptyHH')}</span>`;}
+  else{sv.textContent=st.F;sb.style.width=st.F+'%';sb.style.background=st.F<35?'var(--shock)':st.F<60?'var(--hl)':'var(--inc)';
+    document.getElementById('p-i').textContent='+'+st.stab;document.getElementById('p-c').textContent='+'+st.Bf;document.getElementById('p-l').textContent='−'+st.L;
+    const IN=t('INC'),L=t('LOAD'),BU=t('BUF');
+    document.getElementById('chips').innerHTML=`<span class="chip"><i style="background:var(--inc)"></i>${IN[B.inc][0]}</span>`+[...B.load].map(k=>`<span class="chip"><i style="background:${k==='second'?'var(--inc)':'var(--debt)'}"></i>${L[k][0]}</span>`).join('')+[...B.buf].map(k=>`<span class="chip"><i style="background:var(--buf)"></i>${BU[k][0]}</span>`).join('');}
+  const box=document.getElementById('impact');
+  if(!st||!B.shock.size){box.innerHTML=`<h3>${t('impactWaitT')}</h3><p class="intro">${t('impactWait')}</p>`;return}
+  const a=bImpact(st,true),z=bImpact(st,false),hasBuf=B.buf.size>0;
+  box.innerHTML=`<h3>${t('impactT')(B.shock.size)}</h3><p class="intro">${hasBuf?t('impactIntro'):t('impactIntroNoBuf')}</p><div class="meters">
+   ${meter(t('mObl'),a.obl,hasBuf?z.obl:null,a.obl+'%',t('mOblP')(a.obl),'var(--inc)',100)}
+   ${meter(t('mDebt'),a.debt,hasBuf?z.debt:null,a.debt+'%',t('mDebtP')(a.debt,a.cr,a.fam),'var(--debt)',100)}
+   ${meter(t('mRec'),a.rec,hasBuf?z.rec:null,t('mRecV')(a.rec),t('mRecP'),'var(--buf)',36)}
+   ${meter(t('mStress'),a.stress,hasBuf?z.stress:null,a.stress+' / 100',t('mStressP')(a.stress),'var(--shock)',100)}
+  </div>${hasBuf?`<div class="legend-ghost"><i></i>${t('ghost')}</div><div class="compare">${t('compare')(a.I,z.I)}</div>`:''}`;
+}
+document.getElementById('m-arma').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b||b.disabled)return;
+  const k=b.dataset.k,box=b.parentElement.id;
+  if(box==='o-inc'){B.inc=k;if(k!=='formal')B.buf.delete('unemp')}
+  else if(box==='o-load'){if(B.load.has(k))B.load.delete(k);else{B.load.add(k);if(HOUSING.includes(k)){HOUSING.filter(x=>x!==k).forEach(x=>B.load.delete(x));B.buf.delete('home')}}}
+  else if(box==='o-buf'){B.buf.has(k)?B.buf.delete(k):B.buf.add(k)}
+  else if(box==='o-shock'){B.shock.has(k)?B.shock.delete(k):(B.shock.size<2&&B.shock.add(k))}
+  else if(b.id==='next1'){B.step=2}
+  else if(b.id==='next2'){B.step=3}
+  else if(b.id==='clearShock'){B.shock.clear()}
+  else if(b.id==='resetBuild'){B.inc=null;B.load.clear();B.buf.clear();B.shock.clear();B.step=1}
+  else return;
+  renderBuild()});
 
-  // menu
-  ["exp","buf","int"].forEach(function(g){
-    var box = $("g-"+g);
-    ORDER[g].forEach(function(k){
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "chipbtn"; b.dataset.k = k; b.setAttribute("aria-pressed","false");
-      b.innerHTML = '<span class="box" aria-hidden="true"></span>' + F[k].label;
-      b.addEventListener("click", function(){
-        on[k] = !on[k]; if (on[k]) bump(k, 2);
-        shockState = null; update();
-      });
-      box.appendChild(b);
-    });
-  });
-  document.querySelectorAll("#presets button").forEach(function(b){
-    b.addEventListener("click", function(){
-      on = {}; PRESETS[b.dataset.preset].forEach(function(k){on[k]=true; bump(k,1)});
-      shockState = null; update();
-    });
-  });
-
-  function sum(g){return ORDER[g].reduce(function(s,k){return s + (on[k]?F[k].w:0)},0)}
-  function index(){return sum("exp") - sum("buf") + sum("int")}
-
-  function mechanisms(){
-    var exp = sum("exp"), buf = sum("buf");
-    var m = {};
-    m.M1 = (on.vol||on.job||on.health) && !on.sav && !on.state;
-    m.M2 = !!(on.debt||on.rent);
-    m.M3 = !!(on.wealth||on.fam);
-    m.M4 = !!((on.job||on.study) && (on.fam||on.state||on.ins)) || (on.job && !on.fam && !on.state);
-    m.M5 = !!(on.worry||on.past||(exp>3 && on.state));
-    m.M6 = !!(on.vol||on.past||on.rent);
-    m.M7 = !!((on.study||on.care) && buf < 3);
-    m.M8 = !!(on.distrust || (on.worry && !on.state));
-    if (shockState){ shockState.mechs.forEach(function(x){m[x]=true}) }
-    return m;
-  }
-
-  // ---------- drawing ----------
-  var svg = $("stage");
-  function el(name, attrs, parent, text){
-    var e = document.createElementNS(NS, name);
-    for (var a in attrs) e.setAttribute(a, attrs[a]);
-    if (text != null) e.textContent = text;
-    (parent||svg).appendChild(e); return e;
-  }
-  function draw(){
-    while (svg.childNodes.length > 1) svg.removeChild(svg.lastChild);
-    var GROUND = 410, SLAB = 22, cx = 280;
-    var slabs = ORDER.buf.filter(function(k){return on[k]});
-    var idx = index();
-    var sink = shockState && shockState.v === "crisis" ? 26 : (idx > 4 ? Math.min((idx-4)*4, 22) : 0);
-    var base = GROUND - slabs.length*SLAB + sink;
-
-    // arrows defs
-    var defs = el("defs",{});
-    var mk = el("marker",{id:"arr",viewBox:"0 0 10 10",refX:"9",refY:"5",markerWidth:"6",markerHeight:"6",orient:"auto"},defs);
-    el("path",{d:"M0 0L10 5L0 10z",style:"fill:var(--shock)"},mk);
-
-    // burdens
-    var burd = ORDER.exp.filter(function(k){return on[k]});
-    var x = 30, y = 22, rowH = 32, chips = [];
-    burd.forEach(function(k){
-      var w = F[k].label.length*7.4 + 24;
-      if (x + w > 530){ x = 30; y += rowH }
-      chips.push({k:k,x:x,y:y,w:w}); x += w + 8;
-    });
-    var roofTop = base - 100 - 58;
-    chips.forEach(function(c){
-      var g = el("g",{class:"burden"});
-      el("line",{x1:c.x+c.w/2,y1:c.y+24,x2:cx+(c.x+c.w/2-cx)*0.35,y2:roofTop+8,style:"stroke:var(--shock);stroke-width:1.2;opacity:.55",["marker-end"]:"url(#arr)"},g);
-      el("rect",{x:c.x,y:c.y,width:c.w,height:24,rx:12,style:"fill:var(--shock-soft);stroke:var(--shock);stroke-width:1"},g);
-      el("text",{x:c.x+c.w/2,y:c.y+16,"text-anchor":"middle","font-size":"13",style:"fill:var(--ink)"},g,F[c.k].label);
-    });
-    if (!burd.length) el("text",{x:cx,y:40,"text-anchor":"middle","font-size":"12",style:"fill:var(--muted)"},null,"Sin riesgos activos");
-
-    // house
-    var hg = el("g",{class:"housegroup"});
-    var bx = 200, bw = 160, bh = 100;
-    var tone = idx > 6 ? "var(--shock-soft)" : "var(--surface)";
-    el("rect",{x:bx,y:base-bh,width:bw,height:bh,style:"fill:"+tone+";stroke:var(--ink);stroke-width:1.5"},hg);
-    el("path",{d:"M"+(bx-16)+" "+(base-bh)+" L"+cx+" "+roofTop+" L"+(bx+bw+16)+" "+(base-bh)+" Z",style:"fill:var(--ink);stroke:var(--ink);stroke-width:1.5;stroke-linejoin:round"},hg);
-    el("rect",{x:cx-14,y:base-48,width:28,height:48,rx:2,style:"fill:var(--bg);stroke:var(--ink);stroke-width:1.2"},hg);
-    el("rect",{x:bx+20,y:base-78,width:34,height:28,rx:2,style:"fill:var(--bg);stroke:var(--ink);stroke-width:1.2"},hg);
-    el("rect",{x:bx+bw-54,y:base-78,width:34,height:28,rx:2,style:"fill:var(--bg);stroke:var(--ink);stroke-width:1.2"},hg);
-    if (idx > 4 || (shockState && shockState.v !== "ok")){
-      el("path",{class:"crack",d:"M"+(bx+70)+" "+(base-bh)+" l8 18 l-10 14 l9 16 l-6 12",style:"fill:none;stroke:var(--shock);stroke-width:2"},hg);
+/* ============ EL HOGAR EN EL TIEMPO ============ */
+const PRESETS={
+ madre:{inc:520,share:.88,exp:512,debt:0,debtLeft:0,sav:0,formal:false,net:'algo',card:true,sh:[['job',4,4],['none',10,1]]},
+ dos:{inc:1300,share:.6,exp:1165,debt:100,debtLeft:12,sav:150,formal:true,net:'algo',card:true,sh:[['job',4,4],['none',12,1]]},
+ clase:{inc:2340,share:.55,exp:1690,debt:607,debtLeft:240,sav:500,formal:true,net:'algo',card:true,sh:[['job',4,4],['none',14,1]]},
+ mayores:{inc:464,share:0,exp:406,debt:0,debtLeft:0,sav:0,formal:false,net:'debil',card:false,sh:[['ill',4,3],['prices',12,1]]}
+};
+const P={preset:'dos',seed:7};
+function loadPreset(id){Object.assign(P,JSON.parse(JSON.stringify(PRESETS[id])),{preset:id})}
+loadPreset('dos');
+const NETP={fuerte:[.85,400],algo:[.55,200],debil:[.3,90],ninguna:[0,0]};
+const AFC=[.7,.55,.45,.4,.35];
+const RB=.2961,RC=.4106;
+function cuota(m,r,n){const i=Math.pow(1+r,1/12)-1;return m*i/(1-Math.pow(1+i,-n))}
+function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296}}
+function simulate(p,seed){
+  const R=rng(seed);let S=p.sav,arr=0,fat=0,lastBank=-9,intC=0,loanP=0,cardP=0;
+  const debts=p.debt>0?[{t:'prev',c:p.debt,left:p.debtLeft||12}]:[];
+  let gastos=p.exp;const out=[];
+  for(let m=1;m<=24;m++){
+    let loss=0,extra=0,ins=0;const ev=[];
+    p.sh.forEach(([k,start,dur])=>{if(k==='none')return;const act=m>=start&&m<start+dur;
+      if(m===start)ev.push(['shock',k]);
+      if(k==='job'&&act){loss+=p.inc*(p.share||0)*(p.share?1:0)+(p.share?0:p.inc*.25);if(p.formal&&p.share)ins+=p.inc*p.share*(AFC[m-start]||0)}
+      if(k==='ill'){if(m===start)extra+=500;if(act){extra+=120;loss+=p.inc*(p.share||0)*(p.formal?.15:.5)}}
+      if(k==='prices'&&m===start)gastos*=1.12;
+      if(k==='repair'&&m===start)extra+=450;});
+    loss=Math.min(loss,p.inc);
+    const own=p.inc-loss;if(ins>0)ev.push(['ins',ins]);
+    const cuotas=debts.reduce((a,d)=>a+d.c,0);const cq={prev:0,bank:0,card:0};debts.forEach(d=>cq[d.t]+=d.c);
+    const need=gastos+extra+cuotas;
+    const rec={m,own,ins,need,gastos,extra,cuotas,sav:0,cut:0,fam:0,bank:0,card:0,arr:0,surplus:0,famAsk:false};
+    let gap=own+ins-need;
+    if(gap>=0){rec.surplus=gap;const aust=arr>0?gastos*.06:0;const pay=Math.min(arr,gap+aust);if(pay>1)ev.push(['paid',pay]);arr-=pay;S+=Math.max(0,gap-pay);fat=Math.max(0,fat-.05)}
+    else{let D=-gap;
+      let u=Math.min(S,D);if(u>1){rec.sav=u;S-=u;D-=u;ev.push(['sav',u])}
+      if(D>1){u=Math.min(D,gastos*.08);rec.cut=u;D-=u;ev.push(['cut',u])}
+      if(D>1&&p.net!=='ninguna'){rec.famAsk=true;const [pr,cap]=NETP[p.net];if(R()<pr*(1-fat)){u=Math.min(D,cap*(1-fat*.5));rec.fam=u;D-=u;fat=Math.min(.9,fat+.2);ev.push(['famY',u])}else{ev.push(['famN'])}}
+      if(D>1&&m-lastBank>=4){const pa=p.formal?(arr>0?.3:.7):(arr>0?.08:.2);lastBank=m;
+        if(R()<pa){const prin=Math.round(Math.max(D*2.5,200));const c=cuota(prin,RB,12);debts.push({t:'bank',c,left:12});intC+=c*12-prin;loanP+=prin;rec.loan=prin;rec.bank=D;S+=prin-D;D=0;ev.push(['bankY',prin,c])}else ev.push(['bankN'])}
+      if(D>1&&p.card){const used=debts.filter(d=>d.t==='card').reduce((a,d)=>a+d.c*d.left*.88,0);const room=Math.max(0,300-used);u=Math.min(D,room);
+        if(u>20){const c=cuota(u,RC,6);debts.push({t:'card',c,left:6});intC+=c*6-u;cardP+=u;rec.card=u;D-=u;ev.push(['card',u,c])}}
+      if(D>1){rec.arr=D;arr+=D;ev.push(['arr',D])}
     }
-    if (idx > 7 || (shockState && shockState.v === "crisis")){
-      el("path",{class:"crack",d:"M"+(bx+bw-8)+" "+(base-40)+" l-14 6 l6 10 l-12 8",style:"fill:none;stroke:var(--shock);stroke-width:2"},hg);
-    }
-
-    // thought bubble
-    var thoughts = ORDER.int.filter(function(k){return on[k]});
-    if (thoughts.length){
-      var tx = 370, ty = base - bh - 40, th = 16 + thoughts.length*17;
-      el("circle",{cx:bx+bw+6,cy:base-bh+6,r:4,style:"fill:var(--family-soft);stroke:var(--family)"},hg);
-      el("circle",{cx:bx+bw+16,cy:base-bh-6,r:6,style:"fill:var(--family-soft);stroke:var(--family)"},hg);
-      el("rect",{x:tx,y:ty-th,width:184,height:th,rx:12,style:"fill:var(--family-soft);stroke:var(--family)"},hg);
-      thoughts.forEach(function(k,i){
-        el("text",{x:tx+12,y:ty-th+21+i*17,"font-size":"13",style:"fill:var(--ink)"},hg,F[k].label);
-      });
-    }
-
-    // slabs
-    slabs.forEach(function(k,i){
-      var sy = GROUND - (i+1)*SLAB + sink;
-      var used = shockState ? (shockState.used[k]||0) : 0;
-      var remain = Math.max(0, 1 - used);
-      el("rect",{x:160,y:sy+1,width:240,height:SLAB-2,rx:4,style:"fill:none;stroke:"+F[k].color+";stroke-width:1.3"});
-      el("rect",{class:"slab",x:160,y:sy+1,width:240,height:SLAB-2,rx:4,style:"fill:"+F[k].color+";opacity:"+(F[k].op*0.42)+";transform:scaleX("+remain+")"});
-      el("text",{x:170,y:sy+16,"font-size":"13","font-weight":"600",style:"fill:var(--ink)"},null,F[k].label + (used>0 ? (remain<=0?" · agotado":" · usado en parte") : ""));
-    });
-
-    // ground
-    el("rect",{x:0,y:GROUND,width:560,height:60,style:"fill:var(--bg)"});
-    el("line",{x1:20,y1:GROUND,x2:540,y2:GROUND,style:"stroke:var(--ink);stroke-width:1.5"});
-    for (var gx=30; gx<540; gx+=18) el("line",{x1:gx,y1:GROUND+4,x2:gx-8,y2:GROUND+12,style:"stroke:var(--line);stroke-width:1"});
-    if (!slabs.length) el("text",{x:cx,y:GROUND+30,"text-anchor":"middle","font-size":"12",style:"fill:var(--muted)"},null,"Sin colchones: la casa se apoya directo en el suelo");
-    else el("text",{x:cx,y:GROUND+30,"text-anchor":"middle","font-size":"12",style:"fill:var(--muted)"},null,"Colchones: "+slabs.length);
-
-    // falling rock
-    if (lastShock){
-      var rk = el("g",{class:"rock",style:"transform:translateY(-120px)"});
-      el("rect",{x:cx-46,y:roofTop-34,width:92,height:28,rx:6,style:"fill:var(--shock)"},rk);
-      el("text",{x:cx,y:roofTop-15,"text-anchor":"middle","font-size":"12","font-weight":"700",style:"fill:#fff"},rk,SH[lastShock].label);
-      requestAnimationFrame(function(){requestAnimationFrame(function(){rk.style.transform="translateY(0)"; setTimeout(function(){rk.style.opacity="0"},900)})});
-      lastShock = null;
-    }
+    debts.forEach(d=>d.left--);for(let i=debts.length-1;i>=0;i--)if(debts[i].left<=0)debts.splice(i,1);
+    const newDebt=debts.filter(d=>d.t!=='prev').reduce((a,d)=>a+d.c*d.left,0);
+    const debtAll=debts.reduce((a,d)=>a+d.c*Math.min(d.left,24),0);
+    const shortShare=(rec.sav+rec.cut+rec.fam+rec.bank+rec.card+rec.arr)/need;
+    rec.stress=Math.round(Math.max(0,Math.min(100,10+70*Math.min(1,shortShare)+25*Math.min(1,arr/need)+20*Math.min(1,cuotas/Math.max(1,own+ins))+(rec.famAsk?8:0)-(S>need?10:0))));
+    Object.assign(rec,{S,arrTot:arr,debtAll,newDebt,ev,cq,intC,loanP,cardP});out.push(rec);
   }
+  return out;
+}
+const COLORS={own:'var(--inc)',ins:'var(--pub)',sav:'var(--buf)',cut:'var(--cut)',fam:'var(--fam)',bank:'var(--debt)',card:'var(--card)',arr:'var(--arr)'};
+const fmt=v=>'$'+Math.round(v*1000).toLocaleString(lang==='es'?'es-CL':'en-US');
+let SIM=null,selM=4;
+function seg(id,opts,val,key){document.getElementById(id).innerHTML=opts.map(([v,l])=>`<button type="button" data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join('');
+  document.getElementById(id).onclick=e=>{const b=e.target.closest('button');if(!b)return;let v=b.dataset.v;if(v==='true')v=true;else if(v==='false')v=false;P[key]=v;buildSimControls();runSim()}}
+function buildSimControls(){
+  const PR=t('PRESET');
+  document.getElementById('presets').innerHTML=Object.keys(PRESETS).map(k=>`<button type="button" class="preset" data-p="${k}" aria-pressed="${P.preset===k}"><b>${PR[k][0]}</b><span>${PR[k][1]}</span></button>`).join('');
+  [['f-inc','inc'],['f-exp','exp'],['f-debt','debt'],['f-sav','sav']].forEach(([id,k])=>{const el=document.getElementById(id);el.value=P[k];document.getElementById('o-'+id).textContent=fmt(P[k])});
+  seg('f-formal',[[true,t('formalY')],[false,t('formalN')]],P.formal,'formal');
+  seg('f-net',['fuerte','algo','debil','ninguna'].map(k=>[k,t('NET')[k]]),P.net,'net');
+  seg('f-card',[[true,t('yes')],[false,t('no')]],P.card,'card');
+  const SH=t('SHOCK');
+  [0,1].forEach(i=>{const s=P.sh[i];const pre='sh'+(i+1);
+    document.getElementById(pre+'t').innerHTML=`<option value="none">${t('none')}</option>`+Object.keys(SH).map(k=>`<option value="${k}" ${s[0]===k?'selected':''}>${SH[k]}</option>`).join('');
+    if(s[0]==='none')document.getElementById(pre+'t').value='none';
+    document.getElementById(pre+'m').innerHTML=Array.from({length:22},(_,j)=>j+1).map(m=>`<option value="${m}" ${s[1]===m?'selected':''}>${t('monthN')(m)}</option>`).join('');
+    document.getElementById(pre+'d').innerHTML=[1,2,3,4,5,6,8,10,12].map(d=>`<option value="${d}" ${s[2]===d?'selected':''}>${t('durN')(d)}</option>`).join('');
+    const dis=s[0]==='none';document.getElementById(pre+'m').disabled=dis;document.getElementById(pre+'d').disabled=dis||s[0]==='repair'||s[0]==='prices';});
+}
+document.getElementById('presets').onclick=e=>{const b=e.target.closest('.preset');if(!b)return;loadPreset(b.dataset.p);selM=P.sh[0][0]==='none'?1:P.sh[0][1];buildSimControls();runSim()};
+[['f-inc','inc'],['f-exp','exp'],['f-debt','debt'],['f-sav','sav']].forEach(([id,k])=>document.getElementById(id).addEventListener('input',e=>{P[k]=+e.target.value;if(k==='debt'&&!P.debtLeft)P.debtLeft=12;document.getElementById('o-'+id).textContent=fmt(P[k]);runSim()}));
+['sh1','sh2'].forEach((pre,i)=>['t','m','d'].forEach((f,j)=>document.getElementById(pre+f).addEventListener('change',e=>{const v=f==='t'?e.target.value:+e.target.value;P.sh[i][j]=v;buildSimControls();runSim()})));
+document.getElementById('reroll').onclick=()=>{P.seed++;runSim()};
 
-  // ---------- shocks ----------
-  var SH = {
-    job:{label:"Despido",cost:3.5,mech:["M1","M4"]},
-    health:{label:"Enfermedad",cost:3,mech:["M1","M5"]},
-    drop:{label:"Caída de ingresos",cost:2.5,mech:["M1","M6"]}
-  };
-  function runShock(s){
-    var cost = SH[s].cost, notes = [], mechs = SH[s].mech.slice();
-    if (on.debt){cost += 1; notes.push("las cuotas de deuda no bajan y agrandan el golpe"); mechs.push("M2")}
-    if (on.rent){cost += 0.5; notes.push("el arriendo o dividendo sigue corriendo")}
-    if (on.care){cost += 0.5; notes.push("hay personas a cargo")}
-    if (s==="health" && on.health){cost += 0.5}
-    var left = cost, used = {}, used_list = [];
-    var cap = {ins: s==="job"?1.5:0, state:1.5, sav:2.5, fam:2, wealth:0.75};
-    ["ins","state","sav","fam","wealth"].forEach(function(k){
-      if (!on[k] || left<=0 || cap[k]<=0) return;
-      var u = Math.min(left, cap[k]); left -= u; used[k] = u/cap[k];
-      used_list.push(F[k].label.toLowerCase());
-      if (k==="wealth"){ notes.push("el patrimonio ayuda poco porque no se puede usar rápido"); mechs.push("M3") }
-      if (k==="fam") mechs.push("M3","M4");
-      if (k==="state"||k==="ins") mechs.push("M4");
-    });
-    var v = left <= 0 ? "ok" : (left <= 1.5 && !on.debt ? "debt" : "crisis");
-    if (v!=="ok") mechs.push("M2");
-    if (v==="crisis" && (on.study||on.care)) mechs.push("M7");
-    if (v==="crisis" && on.worry) mechs.push("M8");
-    mechs.forEach(function(m){bump(m,1.5)}); bump(s==="health"?"health":(s==="job"?"job":"vol"),1);
-    shockState = {s:s,used:used,v:v,left:left,notes:notes,list:used_list,mechs:mechs};
-    lastShock = s;
-    update();
-  }
-  document.querySelectorAll(".shockbar button[data-shock]").forEach(function(b){
-    b.addEventListener("click", function(){ shockState = null; runShock(b.dataset.shock) });
-  });
-  $("reset-shock").addEventListener("click", function(){shockState=null; update()});
+function runSim(){
+  SIM=simulate(P,P.seed);LV.stale=true;
+  const m1=SIM[0],inc1=P.inc,need1=P.exp+P.debt,mg=inc1-need1;
+  document.getElementById('budget').innerHTML=`<div class="bcell"><span>${t('bInc')}</span><b>${fmt(inc1)}</b></div><div class="bcell"><span>${t('bNeed')}</span><b>${fmt(need1)}</b></div><div class="bcell ${mg>=0?'pos':'neg'}"><span>${t('bMargin')}</span><b>${mg>=0?'+':'−'}${fmt(Math.abs(mg))}</b></div>`;
+  drawChart1();drawChart2();renderMonth();renderStory();renderStats();renderAssump();
+}
+function niceStep(v){const p=Math.pow(10,Math.floor(Math.log10(v)));const n=v/p;return (n<=1?1:n<=2?2:n<=5?5:10)*p}
+function kfmt(v){const a=Math.abs(v);return (v<0?'−':'')+(a>=1000?(lang==='es'?'$'+(a/1000).toLocaleString('es-CL',{maximumFractionDigits:1})+' M':'$'+(a/1000).toLocaleString('en-US',{maximumFractionDigits:1})+'M'):(lang==='es'?'$'+Math.round(a)+' mil':'$'+Math.round(a)+'k'))}
+function drawChart1(){
+  const W=960,H=330,L=70,Rr=10,Tp=12,Bt=40,cw=(W-L-Rr)/24;
+  const up=Math.max(20,...SIM.map(r=>r.surplus));const dn=Math.max(20,...SIM.map(r=>r.need-r.own));
+  const st=niceStep((up+dn)/5);const top=Math.ceil(up/st)*st,bot=Math.ceil(dn/st)*st;
+  const y=v=>Tp+(H-Tp-Bt)*(top-v)/(top+bot);
+  let s='';for(let v=-bot;v<=top+1e-6;v+=st){s+=`<line x1="${L}" x2="${W-Rr}" y1="${y(v)}" y2="${y(v)}" stroke="${Math.abs(v)<1e-6?'var(--ink)':'var(--line)'}" ${Math.abs(v)<1e-6?'stroke-width="1.5"':''}/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${v===0?'0':kfmt(v)}</text>`}
+  SIM.forEach((r,i)=>{const x=L+i*cw;
+    s+=`<g class="col${r.m===selM?' sel':''}" data-m="${r.m}" tabindex="0" role="button" aria-label="${t('mdT')(r.m)}"><rect class="hit" x="${x}" y="${Tp}" width="${cw}" height="${H-Tp-Bt}" fill="transparent" rx="4"/>`;
+    if(r.surplus>.5)s+=`<rect x="${x+3}" y="${y(r.surplus)}" width="${cw-6}" height="${Math.max(1,y(0)-y(r.surplus))}" fill="var(--inc)"/>`;
+    let acc=0;[['ins',Math.min(r.ins,Math.max(0,r.need-r.own))],['sav',r.sav],['cut',r.cut],['fam',r.fam],['bank',r.bank],['card',r.card],['arr',r.arr]].forEach(([k,v])=>{if(v<=.5)return;s+=`<rect x="${x+3}" y="${y(-acc)}" width="${cw-6}" height="${Math.max(1,y(-acc-v)-y(-acc))}" fill="${COLORS[k]}"/>`;acc+=v});
+    s+=`<text x="${x+cw/2}" y="${H-Bt+16}" text-anchor="middle">${r.m}</text></g>`;
+    if(r.ev.some(e=>e[0]==='shock'))s+=`<path d="M${x+cw/2-6} ${H-Bt+22} l6 10 l6 -10z" fill="var(--shock)"/>`;});
+  s+=`<text x="${L+6}" y="${Tp+12}" style="fill:var(--inc-t)">${lang==='es'?'sobró':'surplus'}</text><text x="${L+6}" y="${H-Bt-6}" style="fill:var(--debt)">${lang==='es'?'faltó, y así se cubrió':'shortfall, and how it was covered'}</text>`;
+  const el=document.getElementById('chart1');el.innerHTML=s;el.setAttribute('aria-label',t('chart1T'));
+  el.querySelectorAll('.col').forEach(g=>{const go=()=>{selM=+g.dataset.m;el.querySelectorAll('.col').forEach(c=>c.classList.toggle('sel',c===g));renderMonth()};g.onclick=go;g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
+  const SR=t('SRC');document.getElementById('leg1').innerHTML=[['inc',lang==='es'?'Sobrante del mes':'Monthly surplus']].map(([k,l])=>`<span><i style="background:var(--inc)"></i>${l}</span>`).join('')+['ins','sav','cut','fam','bank','card','arr'].map(k=>`<span><i style="background:${COLORS[k]}"></i>${SR[k]}</span>`).join('')+`<span><i style="background:var(--shock);clip-path:polygon(0 0,100% 0,50% 100%)"></i>${lang==='es'?'Golpe':'Shock'}</span>`;
+}
+function drawChart2(){
+  const W=960,H=250,L=70,Rr=10,Tp=12,Bt=56,cw=(W-L-Rr)/24;
+  const mx=Math.max(50,...SIM.map(r=>Math.max(r.S,r.debtAll,r.arrTot)));const st=niceStep(mx/3);const maxV=Math.ceil(mx/st)*st;
+  const y=v=>Tp+(H-Tp-Bt)*(1-v/maxV);
+  let s='';for(let v=0;v<=maxV+1e-6;v+=st){s+=`<line x1="${L}" x2="${W-Rr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${v===0?'0':kfmt(v)}</text>`}
+  const line=(k,c,dash)=>{let d='';SIM.forEach((r,i)=>{d+=(i?'L':'M')+(L+i*cw+cw/2)+' '+y(r[k])});return `<path d="${d}" fill="none" stroke="${c}" stroke-width="3" stroke-linejoin="round" ${dash?'stroke-dasharray="6 5"':''}/>`};
+  s+=line('S','var(--buf)')+line('debtAll','var(--debt)')+line('arrTot','var(--arr)',true);
+  SIM.forEach((r,i)=>{const x=L+i*cw;const c=r.stress;const col=c<35?'color-mix(in srgb,var(--shock) 18%,var(--bg))':c<65?'color-mix(in srgb,var(--shock) 55%,var(--bg))':'var(--shock)';
+    s+=`<rect x="${x+2}" y="${H-Bt+12}" width="${cw-4}" height="16" rx="3" fill="${col}"><title>${t('lines').stress}: ${c}</title></rect><text x="${x+cw/2}" y="${H-Bt+44}" text-anchor="middle">${r.m}</text>`});
+  s+=`<text x="${L-8}" y="${H-Bt+24}" text-anchor="end">${lang==='es'?'estrés':'stress'}</text>`;
+  const el=document.getElementById('chart2');el.innerHTML=s;el.setAttribute('aria-label',t('chart2T'));
+  const LN=t('lines');document.getElementById('leg2').innerHTML=`<span><i style="height:3px;background:var(--buf)"></i>${LN.S}</span><span><i style="height:3px;background:var(--debt)"></i>${LN.debt}</span><span><i style="height:3px;background:repeating-linear-gradient(90deg,var(--arr) 0 6px,transparent 6px 10px)"></i>${LN.arr}</span><span><i style="background:linear-gradient(90deg,color-mix(in srgb,var(--shock) 18%,var(--bg)),var(--shock))"></i>${LN.stress}</span>`;
+}
+function renderMonth(){
+  const r=SIM[selM-1],SR=t('SRC');
+  document.getElementById('mdT').textContent=t('mdT')(r.m);
+  const gap=r.own+r.ins-r.need;
+  const cov=[['sav',r.sav],['cut',r.cut],['fam',r.fam],['bank',r.bank],['card',r.card],['arr',r.arr]].filter(x=>x[1]>.5);
+  document.getElementById('mdet').innerHTML=`<div class="rows"><div class="tot"><span>${t('mIn')}</span><span class="m">${fmt(r.own+r.ins)}</span></div><div><span><i class="sw" style="background:var(--inc)"></i>${t('mInc')}</span><span class="m">${fmt(r.own)}</span></div>${r.ins?`<div><span><i class="sw" style="background:var(--pub)"></i>${t('mIns')}</span><span class="m">${fmt(r.ins)}</span></div>`:''}
+    <div class="tot" style="margin-top:8px"><span>${t('mOut')}</span><span class="m">${fmt(r.need)}</span></div><div><span>${t('mExp')}</span><span class="m">${fmt(r.gastos)}</span></div>${r.extra?`<div><span style="color:var(--shock-t)">${t('mExtra')}</span><span class="m">${fmt(r.extra)}</span></div>`:''}<div><span>${t('mInst')}</span><span class="m">${fmt(r.cuotas)}</span></div></div>
+   <div class="rows"><div class="tot"><span>${gap>=0?t('mSurplus'):t('mGap')}</span><span class="m" style="color:${gap>=0?'var(--inc-t)':'var(--debt)'}">${gap>=0?'+':'−'}${fmt(Math.abs(gap))}</span></div>${gap>=0?`<div><span style="color:var(--muted)">${t('mNoGap')}</span></div>`:`<div style="border:0;padding-top:8px"><b>${t('mCover')}</b></div>`+cov.map(([k,v])=>`<div><span><i class="sw" style="background:${COLORS[k]}"></i>${SR[k]}</span><span class="m">${fmt(v)}</span></div>`).join('')}
+   <div style="margin-top:8px"><span>${t('lines').stress}</span><span class="m">${r.stress} / 100</span></div></div>`;
+}
+function renderStory(){
+  const E=t('ev'),SH=t('SHOCK');const items=[];
+  SIM.forEach(r=>r.ev.forEach(e=>{let s='';const k=e[0];
+    if(k==='shock')s=`<b>${E.shock(SH[e[1]])}</b>`;else if(k==='ins')s=E.ins(fmt(e[1]));else if(k==='sav')s=E.sav(fmt(e[1]));else if(k==='cut')s=E.cut(fmt(e[1]));
+    else if(k==='famY')s=E.famY(fmt(e[1]));else if(k==='famN')s=E.famN;else if(k==='bankY')s=E.bankY(fmt(e[1]),fmt(e[2]));else if(k==='bankN')s=E.bankN;
+    else if(k==='card')s=E.card(fmt(e[1]),fmt(e[2]));else if(k==='arr')s=`<span style="color:var(--arr)">${E.arr(fmt(e[1]))}</span>`;else if(k==='paid')s=E.paid(fmt(e[1]));
+    items.push(`<div><span class="mm">${t('monthN')(r.m)}</span><span>${s}</span></div>`)}));
+  document.getElementById('story').innerHTML=items.length?items.join(''):`<p class="empty">${t('storyQuiet')}</p>`;
+}
+function renderStats(){const m=mcStats(),ST=t('st');
+  document.getElementById('stats').innerHTML=`<div class="stat"><b>${m.arr}%</b><span>${ST.arr}</span></div><div class="stat"><b>${m.card}%</b><span>${ST.card}</span></div><div class="stat"><b>${fmt(m.debt)}</b><span>${ST.debt}</span></div><div class="stat"><b>${m.hs}</b><span>${ST.stress}</span></div>`;
+}
+function renderAssump(){const H=t('assumpH');document.getElementById('assump').innerHTML=`<thead><tr>${H.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${t('A').map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody>`}
 
-  // ---------- mechanisms ----------
-  function renderMechs(m){
-    var box = $("mechtags"); box.innerHTML = "";
-    Object.keys(M).forEach(function(k){
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "mechtag"; b.dataset.on = m[k] ? "true":"false";
-      b.setAttribute("aria-expanded", openMech===k ? "true":"false");
-      b.textContent = k + " · " + M[k].t;
-      if (!m[k]) b.disabled = true;
-      b.addEventListener("click", function(){ openMech = openMech===k ? null : k; if (openMech) bump(k,3); update() });
-      box.appendChild(b);
-    });
-    var info = $("mechinfo");
-    if (openMech && m[openMech]){
-      info.hidden = false;
-      info.innerHTML = "<strong>"+openMech+" · "+M[openMech].t+"</strong><p>"+M[openMech].d+"</p><div class=\"chain\">"+M[openMech].chain.map(function(c){return "<span>"+c+"</span>"}).join("<b>→</b>")+"</div>";
-    } else { info.hidden = true; if (openMech && !m[openMech]) openMech = null }
-  }
+/* ============ PASO A PASO ============ */
+const LV={run:null,i:-1,t:0,playing:false,speed:1,raf:null,last:0,stale:true,done:false};
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NODES={job:[150,105,'var(--inc)'],state:[150,280,'var(--pub)'],fam:[150,455,'var(--fam)'],bank:[810,105,'var(--debt)'],card:[810,280,'var(--card)'],bills:[810,455,'var(--muted)']};
+const ICON={job:'<path d="M4 8h16v11H4z"/><path d="M9 8V5h6v3"/>',state:'<path d="M3 9l9-5 9 5"/><path d="M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/>',fam:'<circle cx="9" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M3 19c1-4 3.5-6 6-6s5 2 6 6"/><path d="M14.5 15c2.6-.4 5 .8 6.5 4"/>',bank:'<path d="M3 9l9-5 9 5"/><path d="M5 10v8M19 10v8M3 20h18"/><path d="M14 11.5c-.4-.9-1.2-1.3-2-1.3-1.1 0-2 .6-2 1.5 0 2 4 1 4 3 0 .9-.9 1.5-2 1.5-.9 0-1.7-.4-2.1-1.3M12 9v1.2M12 16.2v1.3"/>',card:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M6 15h4"/>',bills:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'};
+const HX=480,HY=210;
+function anchor(k){return NODES[k][0]<HX?[418,HY+10]:[542,HY+10]}
+function liveInit(){cancelAnimationFrame(LV.raf);Object.assign(LV,{run:simulate(P,P.seed),i:-1,t:0,playing:false,done:false,stale:false});
+  LV.smax=Math.max(1,P.sav,...LV.run.map(r=>r.S),LV.run[0].need*1.2);
+  document.getElementById('lv-log').innerHTML=`<p class="empty">${t('lvLogEmpty')}</p>`;
+  liveCfg();liveSummary();drawStage();}
+function liveCfg(){const PR=t('PRESET');const sel=document.getElementById('lv-preset');sel.innerHTML=Object.keys(PRESETS).map(k=>`<option value="${k}" ${P.preset===k?'selected':''}>${PR[k][0]}</option>`).join('');
+  const SH=t('SHOCK');const sh=P.sh.filter(x=>x[0]!=='none').map(([k,m,d])=>`${SH[k].toLowerCase()} (${t('monthN')(m).toLowerCase()}${k==='job'||k==='ill'?', '+t('durN')(d):''})`);
+  document.getElementById('lv-shocks').innerHTML=`${t('lvShocks')}: ${sh.join(' · ')||t('none').toLowerCase()} · <a href="#laboratorio/tiempo">${t('lvChange')}</a>`;
+  document.getElementById('lv-speed').innerHTML=[1,2,4].map(v=>`<button type="button" data-v="${v}" aria-pressed="${LV.speed===v}">${v}×</button>`).join('');
+  playLabel();}
+function playLabel(){document.getElementById('lv-play').textContent=LV.playing?t('lvPause'):LV.done?t('lvAgain'):LV.i<0?t('lvPlay'):t('lvResume')}
+function cur(){return LV.i>=0?LV.run[LV.i]:null}
+function flowsOf(r){return {inn:[['job',r.own],['state',r.ins],['fam',r.fam],['bank',r.loan||0],['card',r.card]],out:[['bills',Math.max(0,r.gastos+r.extra-r.cut-r.arr)],['bank',r.cq.prev+r.cq.bank],['card',r.cq.card]]}}
+function drawStage(){
+  const r=cur(),prev=LV.i>0?LV.run[LV.i-1]:null,late=LV.t>=.5||LV.done;
+  const show=r?(late?r:(prev||{S:P.sav,arrTot:0,debtAll:P.debt*(P.debtLeft?Math.min(P.debtLeft,24):0),stress:10})):{S:P.sav,arrTot:0,debtAll:P.debt*Math.min(P.debtLeft||0,24),stress:10};
+  const upto=LV.run.slice(0,LV.i+1);const sum=k=>upto.reduce((a,x)=>a+(x[k]||0),0);
+  const shockNow=r&&P.sh.some(([k,m,d])=>k!=='none'&&LV.i+1>=m&&LV.i+1<m+((k==='job'||k==='ill')?d:1));
+  const jobOff=r&&P.sh.some(([k,m,d])=>k==='job'&&LV.i+1>=m&&LV.i+1<m+d);
+  const B={job:jobOff?`<tspan fill="var(--shock-t)">${t('lvJobOff')}</tspan>`:(P.share?t('lvJobOn'):t('lvPension')),state:sum('ins')>0?`${t('lvGave')} ${fmt(sum('ins'))}`:t('lvStateIdle'),fam:sum('fam')>0?`${t('lvGave')} ${fmt(sum('fam'))}`:(P.net==='ninguna'?t('lvNoNet'):t('NET')[P.net]),
+    bank:r&&r.loanP?`${t('lvLent')} ${fmt(r.loanP)}`:((r?r.cq.prev+r.cq.bank:P.debt)>.5?`${t('lvInst')} ${fmt(r?r.cq.prev+r.cq.bank:P.debt)}`:t('lvNoDebt')),card:!P.card?t('lvNoCard'):(r&&r.cardP?`${t('lvAdv')} ${fmt(r.cardP)}`:t('lvCardIdle')),
+    bills:show.arrTot>1?`<tspan fill="var(--arr)">${t('lvLate')} ${fmt(show.arrTot)}</tspan>`:t('lvOk')};
+  const LBL=t('lvNode');const fl=r?flowsOf(r):{inn:[],out:[]};
+  const active=new Set();(LV.t<.5?fl.inn:fl.out).forEach(([k,v])=>{if(v>.5&&r&&!LV.done)active.add(k)});
+  let s='';
+  for(const k in NODES){const [x,y]=NODES[k],[ax,ay]=anchor(k);s+=`<line class="edge${active.has(k)?' on':''}" x1="${x+(x<HX?44:-44)}" y1="${y}" x2="${ax}" y2="${ay}"/>`}
+  // particles
+  if(r&&!LV.done&&!RM){const ph=LV.t<.5?LV.t/.5:(LV.t-.5)/.5,list=LV.t<.5?fl.inn:fl.out,dir=LV.t<.5?1:-1;
+    list.forEach(([k,v])=>{if(v<=.5)return;const n=Math.max(1,Math.min(10,Math.round(v/90)));const [x,y]=NODES[k],[ax,ay]=anchor(k);const sx=x+(x<HX?44:-44);
+      const col=k==='bills'?'var(--ink2)':NODES[k][2];
+      for(let j=0;j<n;j++){const pr=Math.max(0,Math.min(1,(ph-j/n*.4)/.6));if(pr<=0||pr>=1)continue;const q=dir>0?pr:1-pr;
+        s+=`<circle cx="${sx+(ax-sx)*q}" cy="${y+(ay-y)*q}" r="7" fill="${col}" stroke="var(--bg)" stroke-width="2"/>`}})}
+  // nodes
+  for(const k in NODES){const [x,y,c]=NODES[k];const dim=(k==='card'&&!P.card)||(k==='fam'&&P.net==='ninguna');
+    s+=`<g opacity="${dim?.4:1}"><circle cx="${x}" cy="${y}" r="42" fill="var(--bg)" stroke="${c}" stroke-width="${active.has(k)?5:3}"/><g transform="translate(${x-17} ${y-17}) scale(1.42)" fill="none" stroke="${c}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</g>
+    <text class="nlabel" x="${x}" y="${y+64}" text-anchor="middle">${LBL[k]}</text><text class="nbadge" x="${x}" y="${y+83}" text-anchor="middle">${B[k]}</text></g>`}
+  // house
+  const st=show.stress,hc=st<35?'var(--inc)':st<65?'#E0A200':'var(--shock)';
+  const lvl=Math.max(0,Math.min(1,show.S/LV.smax)),bh=104;
+  s+=`<g><path d="M392 190 L480 118 L568 190" fill="none" stroke="${hc}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+   <rect x="412" y="180" width="136" height="${bh}" rx="6" fill="var(--bg)" stroke="${hc}" stroke-width="4"/>
+   <rect x="416" y="${180+bh-4-(bh-8)*lvl}" width="128" height="${(bh-8)*lvl}" rx="3" fill="var(--buf)" opacity=".22"/>
+   <text x="480" y="222" text-anchor="middle" style="font-family:var(--f-mono);font-size:12px;fill:var(--muted)">${t('lvSav')}</text>
+   <text x="480" y="244" text-anchor="middle" style="font-family:var(--f-mono);font-size:17px;font-weight:500;fill:var(--buf)">${fmt(show.S)}</text>
+   ${st>=65?`<path d="M470 180 l-8 22 l12 12 l-9 22 M520 284 l6-18 l-10-10" fill="none" stroke="var(--shock)" stroke-width="2.5" stroke-linecap="round"/>`:''}
+   ${shockNow?`<g transform="translate(548 120)"><circle r="22" fill="var(--shock)"/><path d="M2 -12 L-7 2 H0 L-2 12 L7 -2 H0 Z" fill="#fff"/></g>`:''}</g>`;
+  // characteristics under the house
+  const need=r?r.need:P.exp+P.debt,inc=r?r.own+r.ins:P.inc;
+  const rows=[[t('lvRowInc'),fmt(inc),'var(--inc-t)'],[t('lvRowNeed'),fmt(need),'var(--ink)'],[t('lvRowDebt'),fmt(show.debtAll),'var(--debt)'],[t('lvRowArr'),fmt(show.arrTot),show.arrTot>1?'var(--arr)':'var(--ink)']];
+  s+=`<g class="props"><rect x="355" y="312" width="250" height="168" rx="14" fill="var(--bg)" stroke="var(--line)"/>`+rows.map((x,j)=>`<text x="372" y="${342+j*27}">${x[0]}</text><text class="v" x="588" y="${342+j*27}" text-anchor="end" style="fill:${x[2]}">${x[1]}</text>`).join('')+
+   `<text x="372" y="${342+4*27}">${t('lines').stress}</text><rect x="508" y="${331+4*27}" width="80" height="10" rx="5" fill="var(--surface2)"/><rect x="508" y="${331+4*27}" width="${80*st/100}" height="10" rx="5" fill="${hc}"/></g>`;
+  const el=document.getElementById('stage');el.innerHTML=s;el.setAttribute('aria-label',t('lvStageAria'));
+  document.getElementById('lv-month').textContent=LV.i<0?t('lvStart'):t('lvMonthOf')(LV.i+1);
+  document.getElementById('lv-track').innerHTML=LV.run.map((x,j)=>`<i class="${j<LV.i||(LV.done&&j<=LV.i)?'done':j===LV.i?'cur':''}${x.ev.some(e=>e[0]==='shock')?' sh':''}"></i>`).join('');
+}
+function evText(e){const E=t('ev'),SH=t('SHOCK'),k=e[0];
+  return k==='shock'?`<b>${E.shock(SH[e[1]])}</b>`:k==='ins'?E.ins(fmt(e[1])):k==='sav'?E.sav(fmt(e[1])):k==='cut'?E.cut(fmt(e[1])):k==='famY'?E.famY(fmt(e[1])):k==='famN'?E.famN:k==='bankY'?E.bankY(fmt(e[1]),fmt(e[2])):k==='bankN'?E.bankN:k==='card'?E.card(fmt(e[1]),fmt(e[2])):k==='arr'?`<span style="color:var(--arr)">${E.arr(fmt(e[1]))}</span>`:k==='paid'?E.paid(fmt(e[1])):''}
+function enterMonth(i){LV.i=i;LV.t=0;const r=LV.run[i];
+  const txt=r.ev.map(evText).join(' ');
+  document.getElementById('lv-caption').innerHTML=`<b>${t('monthN')(i+1)}.</b> ${txt||(r.surplus>.5?t('lvQuiet'):'')}`;
+  const log=document.getElementById('lv-log');if(i===0)log.innerHTML='';
+  if(r.ev.length){log.insertAdjacentHTML('afterbegin',r.ev.map(e=>`<div><span class="mm">${t('monthN')(i+1)}</span><span>${evText(e)}</span></div>`).join(''))}}
+function finish(){LV.done=true;LV.playing=false;LV.t=1;drawStage();playLabel();liveSummary();document.getElementById('lv-caption').innerHTML=t('lvEnd')}
+function tick(ts){if(!LV.playing)return;const dt=Math.min(100,ts-(LV.last||ts));LV.last=ts;
+  LV.t+=dt/(1700/LV.speed);if(LV.t>=1){if(LV.i>=23){finish();return}enterMonth(LV.i+1)}
+  drawStage();LV.raf=requestAnimationFrame(tick)}
+function play(){if(LV.done){liveInit()}if(LV.i<0)enterMonth(0);LV.playing=true;LV.last=0;playLabel();LV.raf=requestAnimationFrame(tick)}
+function pause(){LV.playing=false;cancelAnimationFrame(LV.raf);playLabel()}
+document.getElementById('lv-play').onclick=()=>LV.playing?pause():play();
+document.getElementById('lv-step').onclick=()=>{pause();if(LV.done)return;if(LV.i>=23){finish();return}enterMonth(LV.i+1);LV.t=1;drawStage()};
+document.getElementById('lv-reset').onclick=()=>{pause();liveInit()};
+document.getElementById('lv-speed').onclick=e=>{const b=e.target.closest('button');if(!b)return;LV.speed=+b.dataset.v;liveCfg()};
+document.getElementById('lv-preset').onchange=e=>{pause();loadPreset(e.target.value);selM=P.sh[0][0]==='none'?1:P.sh[0][1];buildSimControls();runSim();liveInit()};
+function mcStats(){const N=400;let arrEnd=0,card=0;const debts=[],hs=[];
+  for(let i=0;i<N;i++){const s=simulate(P,1000+i);const last=s[23];if(last.arrTot>1)arrEnd++;if(s.some(r=>r.card>0))card++;debts.push(last.newDebt);hs.push(s.filter(r=>r.stress>=65).length)}
+  const med=a=>{a.sort((x,y)=>x-y);return a[Math.floor(a.length/2)]};return {arr:Math.round(arrEnd/N*100),card:Math.round(card/N*100),debt:med(debts),hs:med(hs)}}
+function liveSummary(){const box=document.getElementById('lv-sum');
+  if(!LV.done){box.innerHTML=`<h3>${t('lvSumT')}</h3><p class="sub">${t('lvSumWait')}</p>`;return}
+  const R=LV.run,last=R[23];const S=t('lvS');
+  const def=R.filter(r=>r.need-r.own-r.ins>.5).length,fam=R.reduce((a,r)=>a+r.fam,0),hs=R.filter(r=>r.stress>=65).length,mc=mcStats();
+  box.innerHTML=`<h3>${t('lvSumT')}</h3><p class="sub">${t('lvSumS')}</p><div class="sumgrid">
+   <div class="stat"><b>${def}</b><span>${S.def}</span></div><div class="stat"><b>${fmt(fam)}</b><span>${S.fam}</span></div>
+   <div class="stat"><b>${fmt(last.loanP+last.cardP)}</b><span>${S.loans}</span></div><div class="stat"><b>${fmt(last.intC)}</b><span>${S.int}</span></div>
+   <div class="stat"><b style="color:${last.arrTot>1?'var(--arr)':'inherit'}">${fmt(last.arrTot)}</b><span>${S.arr}</span></div><div class="stat"><b>${hs}</b><span>${S.hs}</span></div></div>
+   <p style="margin-top:14px;font-size:15px">${t('lvMc')(mc.arr,mc.card)}</p>`}
 
-  // ---------- papers ----------
-  function renderPapers(m){
-    var preferCl = $("prefer-cl").checked;
-    var activeTags = {};
-    Object.keys(on).forEach(function(k){ if(on[k]) activeTags[k]=3 });
-    Object.keys(m).forEach(function(k){ if(m[k]) activeTags[k]=2 });
-    if (openMech) activeTags[openMech] = 4;
-    var any = Object.keys(activeTags).length;
-    var scored = P.map(function(p){
-      var s = 0, why = [];
-      p.k.forEach(function(t){
-        if (activeTags[t]){ s += activeTags[t]; why.push(F[t] ? F[t].label : t+" "+M[t].t) }
-        s += (interest[t]||0)*0.25;
-      });
-      if (preferCl && p.cl) s += 3;
-      if (!any && ["prieto22","hacker","lusardi"].indexOf(p.id)>=0) s += 10;
-      return {p:p,s:s,why:why};
-    }).sort(function(a,b){return b.s-a.s}).slice(0,5);
-    $("papers").innerHTML = scored.map(function(x){
-      var why = x.why.slice(0,3).map(function(w){return "<span>"+w+"</span>"}).join("");
-      if (x.p.cl) why = "<span class=\"cl\">Chile / AL</span>" + why;
-      if (!any) why = "<span>Para empezar</span>" + why;
-      return "<li class=\"paper\"><span class=\"cite\">"+x.p.c+"</span><a href=\""+x.p.u+"\" target=\"_blank\" rel=\"noopener\">"+x.p.t+"</a><p>"+x.p.a+"</p><div class=\"why\">"+why+"</div></li>";
-    }).join("");
-  }
-  $("prefer-cl").addEventListener("change", update);
-
-  // ---------- status ----------
-  function renderStatus(){
-    var idx = index();
-    var pct = Math.max(0, Math.min(100, (idx + 8) / 18 * 100));
-    $("needle").style.left = pct + "%";
-    var s, t;
-    if (idx <= 0){ s="Seguro"; t="Los colchones superan a los riesgos." }
-    else if (idx <= 3){ s="Vulnerable"; t="Se sostiene, pero un golpe puede desbalancearlo." }
-    else if (idx <= 6){ s="Inseguro"; t="Los riesgos superan a los colchones." }
-    else { s="Muy inseguro"; t="Mucha presión y casi nada que la amortigüe." }
-    $("status").textContent = s; $("status-text").textContent = t;
-    var out = $("outcome");
-    if (shockState){
-      var V = {ok:"Lo absorbe",debt:"Sale adelante con más deuda",crisis:"Entra en crisis"};
-      var txt = shockState.list.length ? "Usó: " + shockState.list.join(", ") + "." : "No tenía colchones a los que recurrir.";
-      if (shockState.notes.length) txt += " Además, " + shockState.notes.join("; ") + ".";
-      out.hidden = false;
-      out.style.borderColor = shockState.v==="ok" ? "var(--buffer)" : (shockState.v==="debt" ? "var(--debt)" : "var(--shock)");
-      out.innerHTML = "<strong>"+SH[shockState.s].label+": "+V[shockState.v]+"</strong><span>"+txt+"</span>";
-      $("reset-shock").hidden = false;
-    } else { out.hidden = true; $("reset-shock").hidden = true }
-  }
-
-  function update(){
-    document.querySelectorAll(".chipbtn").forEach(function(b){b.setAttribute("aria-pressed", on[b.dataset.k] ? "true":"false")});
-    var m = mechanisms();
-    draw(); renderStatus(); renderMechs(m); renderPapers(m);
-  }
-
-  PRESETS.rojas.forEach(function(k){on[k]=true});
-  update();
-})();
+applyLang();lastView=(location.hash||'#inicio').slice(1).split('/')[0];
 </script>
-
-
 </body>
 </html>
